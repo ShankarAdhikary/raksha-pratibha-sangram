@@ -463,3 +463,85 @@ body {
 /* ===== DISPLAY VIEWS ===== */
 .display-view { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; }
 .display-view.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* ===== QR CODE SECTION ===== */
+.qr-section { margin-top: 24px; }
+.qr-title { text-align: center; font-size: 14px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.qr-grid { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.qr-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.qr-canvas img { border-radius: 6px; }
+.qr-team-name { font-size: 12px; font-weight: 700; margin-top: 6px; letter-spacing: 1px; }
+
+/* ===== RANK CHANGE ANIMATION ===== */
+@keyframes rankMoveUp {
+  0% { transform: translateY(10px); background: rgba(52,211,153,0.2); }
+  100% { transform: translateY(0); background: transparent; }
+}
+@keyframes rankMoveDown {
+  0% { transform: translateY(-10px); background: rgba(248,113,113,0.2); }
+  100% { transform: translateY(0); background: transparent; }
+}
+.sb-team.rank-move-up { animation: rankMoveUp 0.6s ease; }
+.sb-team.rank-move-down { animation: rankMoveDown 0.6s ease; }
+
+/* ===== WINNER TROPHY ANIMATION ===== */
+@keyframes trophyBounce {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  25% { transform: translateY(-20px) scale(1.1) rotate(-5deg); }
+  75% { transform: translateY(-10px) scale(1.05) rotate(5deg); }
+}
+@keyframes winnerGlow {
+  0%, 100% { text-shadow: 0 0 20px rgba(255,215,0,0.5); }
+  50% { text-shadow: 0 0 60px rgba(255,215,0,0.9), 0 0 100px rgba(255,165,0,0.6); }
+}
+@keyframes finalRankFadeIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.trophy-anim {
+  font-size: 100px;
+  animation: trophyBounce 1.5s ease infinite;
+  display: block;
+  margin-bottom: 10px;
+}
+.winner-label {
+  font-size: 20px;
+  color: var(--warning);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+  animation: winnerGlow 2s infinite;
+}
+.winner-name {
+  font-size: 54px;
+  font-weight: 900;
+  margin: 10px 0;
+  animation: winnerGlow 2s infinite;
+}
+.winner-score { font-size: 28px; color: var(--accent); margin-bottom: 20px; }
+.final-rankings { margin-top: 20px; }
+.final-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 18px;
+  margin: 8px 0;
+  padding: 8px 20px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  animation: finalRankFadeIn 0.5s ease both;
+}
+.final-rank-row:nth-child(1) { animation-delay: 0.3s; font-size: 22px; }
+.final-rank-row:nth-child(2) { animation-delay: 0.5s; }
+.final-rank-row:nth-child(3) { animation-delay: 0.7s; }
+.final-rank-row:nth-child(4) { animation-delay: 0.9s; }
+.final-medal { font-size: 24px; }
+.final-team-name { flex: 1; font-weight: 700; }
+.final-score { color: var(--text-secondary); font-weight: 600; }

@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raksha Pratibha Sangram — Display</title>
     <link rel="stylesheet" href="css/display.css">
+    <!-- Confetti & QR Code libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -31,11 +34,16 @@
             <!-- WELCOME -->
             <div class="display-view active" id="view-welcome">
                 <div class="welcome-screen">
-                    <img src="images/rru-logo.png" alt="RRU Logo" style="height:120px;width:auto;margin-bottom:20px;">
+                    <img src="images/rru-logo.png" alt="RRU Logo" style="height:100px;width:auto;margin-bottom:16px;">
                     <div class="logo-text" id="dLogoText">RAKSHA PRATIBHA SANGRAM</div>
                     <div class="tagline">The Ultimate Knowledge Battle</div>
-                    <div style="margin-top:10px;font-size:16px;color:rgba(255,255,255,0.6);">Rashtriya Raksha University</div>
+                    <div style="margin-top:6px;font-size:15px;color:rgba(255,255,255,0.5);">Rashtriya Raksha University</div>
                     <div class="waiting">Waiting for host to start…</div>
+                    <!-- QR CODES FOR TEAM JOINING -->
+                    <div class="qr-section" id="qrSection">
+                        <div class="qr-title">📱 Scan to Join Buzzer</div>
+                        <div class="qr-grid" id="qrGrid"></div>
+                    </div>
                 </div>
             </div>
 
@@ -150,19 +158,25 @@
         // ============================================================
         // SCOREBOARD SIDEBAR
         // ============================================================
+        let prevRanks = {};
+
         function renderScoreboard(animate, deltaMap) {
             const sb = document.getElementById('sbTeams');
             const sorted = [...teams].sort((a, b) => b.score - a.score);
             const tClasses = ['t1', 't2', 't3', 't4'];
+            const rankEmojis = ['🥇', '🥈', '🥉', '4️⃣'];
 
             sb.innerHTML = sorted.map((t, rank) => {
                 const delta = deltaMap ? deltaMap[t.id] : null;
                 let deltaHtml = '';
                 let animClass = '';
-                if (delta && delta > 0) { deltaHtml = `<div class="team-delta pos">+${delta}</div>`; animClass = 'animate-up'; }
-                else if (delta && delta < 0) { deltaHtml = `<div class="team-delta neg">${delta}</div>`; animClass = 'animate-down'; }
-                return `<div class="sb-team ${tClasses[t.id]}">
-      <div class="team-rank">${rank + 1}</div>
+                const movedUp = prevRanks[t.id] !== undefined && prevRanks[t.id] > rank;
+                const movedDown = prevRanks[t.id] !== undefined && prevRanks[t.id] < rank;
+                if (delta && delta > 0) { deltaHtml = `<div class="team-delta pos">▲ +${delta}</div>`; animClass = 'animate-up'; }
+                else if (delta && delta < 0) { deltaHtml = `<div class="team-delta neg">▼ ${delta}</div>`; animClass = 'animate-down'; }
+                const rankAnim = movedUp ? 'rank-move-up' : movedDown ? 'rank-move-down' : '';
+                return `<div class="sb-team ${tClasses[t.id]} ${rankAnim}">
+      <div class="team-rank">${rankEmojis[rank] || (rank + 1)}</div>
       <div class="team-info">
         <div class="team-name">${t.name}</div>
         ${deltaHtml}
@@ -170,6 +184,9 @@
       <div class="team-score ${animClass}">${t.score}</div>
     </div>`;
             }).join('');
+
+            // Save current ranks
+            sorted.forEach((t, rank) => { prevRanks[t.id] = rank; });
         }
 
         // ============================================================
@@ -180,6 +197,7 @@
             document.getElementById('dCompName').textContent = p.compName;
             document.getElementById('dLogoText').textContent = p.compName;
             renderScoreboard();
+            generateQRCodes();
             showView('welcome');
         }
 
@@ -282,6 +300,9 @@
             reveal.textContent = '✓ ' + labels[correctIdx] + '. ' + q.options[correctIdx];
             reveal.classList.remove('hidden');
 
+            // Fire confetti on correct answer reveal
+            fireConfetti();
+
             // R1: show team results
             if (p.round === 1 && p.teamResults) {
                 const tClasses = ['t1', 't2', 't3', 't4'];
@@ -333,17 +354,24 @@
             showView('winner');
             const w = p.winner;
             const tColors = { 0: '#ef4444', 1: '#3b82f6', 2: '#22c55e', 3: '#f59e0b' };
+            const sorted = [...p.teams].sort((a, b) => b.score - a.score);
+            const medals = ['🥇', '🥈', '🥉', ''];
             document.getElementById('winnerContent').innerHTML = `
-    <div class="trophy">🏆</div>
-    <div class="winner-label">Champion</div>
+    <div class="trophy-anim">🏆</div>
+    <div class="winner-label">🎉 Champion 🎉</div>
     <div class="winner-name" style="color:${tColors[w.id] || '#4f8cff'}">${w.name}</div>
     <div class="winner-score">${w.score} Points</div>
-    <div style="margin-top:30px">
-      ${p.teams.map((t, i) => `<div style="font-size:18px;margin:6px 0;color:${i === 0 ? 'var(--success)' : 'var(--text-secondary)'}">${i + 1}. ${t.name} — ${t.score} pts</div>`).join('')}
-    </div>
-  `;
+    <div class="final-rankings">
+      ${sorted.map((t, i) => `<div class="final-rank-row">
+        <span class="final-medal">${medals[i] || (i + 1)}</span>
+        <span class="final-team-name" style="color:${tColors[t.id]}">${t.name}</span>
+        <span class="final-score">${t.score} pts</span>
+      </div>`).join('')}
+    </div>`;
             document.getElementById('dRoundBadge').textContent = '🏆 Final Results';
             renderScoreboard();
+            // Fire mega confetti celebration
+            fireMegaConfetti();
         }
 
         // ===== ROUND 1 SPECIFIC =====
@@ -569,8 +597,63 @@
         }
 
         // ============================================================
+        // CONFETTI EFFECTS
+        // ============================================================
+        function fireConfetti() {
+            if (typeof confetti === 'undefined') return;
+            const colors = ['#4f8cff', '#a855f7', '#34d399', '#fbbf24', '#ec4899'];
+            confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors });
+            setTimeout(() => confetti({ particleCount: 40, angle: 60, spread: 55, origin: { x: 0 }, colors }), 200);
+            setTimeout(() => confetti({ particleCount: 40, angle: 120, spread: 55, origin: { x: 1 }, colors }), 400);
+        }
+
+        function fireMegaConfetti() {
+            if (typeof confetti === 'undefined') return;
+            const colors = ['#4f8cff', '#a855f7', '#34d399', '#fbbf24', '#ec4899', '#ef4444', '#22c55e'];
+            const duration = 6000;
+            const end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 6, angle: 60, spread: 80, origin: { x: 0 }, colors });
+                confetti({ particleCount: 6, angle: 120, spread: 80, origin: { x: 1 }, colors });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            })();
+            // Big center burst
+            setTimeout(() => confetti({ particleCount: 200, spread: 160, origin: { y: 0.4 }, colors, startVelocity: 45 }), 500);
+        }
+
+        // ============================================================
+        // QR CODE GENERATION
+        // ============================================================
+        function generateQRCodes() {
+            // Always regenerate so team names are fresh
+            const grid = document.getElementById('qrGrid');
+            if (!grid) return;
+            const tColors = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b'];
+            const origin = window.location.origin;
+            grid.innerHTML = '';
+            teams.forEach((t, i) => {
+                const buzzerUrl = `${origin}/buzzer.html?team=${i + 1}`;
+                const card = document.createElement('div');
+                card.className = 'qr-card';
+                card.style.borderColor = tColors[i];
+                card.innerHTML = `<div id="qr${i}" class="qr-canvas"></div><div class="qr-team-name" style="color:${tColors[i]}">${t.name}</div>`;
+                grid.appendChild(card);
+                if (typeof QRCode !== 'undefined') {
+                    new QRCode(document.getElementById('qr' + i), {
+                        text: buzzerUrl, width: 110, height: 110,
+                        colorDark: '#ffffff', colorLight: '#0c1020'
+                    });
+                } else {
+                    // Fallback: use QR server API
+                    document.getElementById('qr' + i).innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&bgcolor=0c1020&color=ffffff&data=${encodeURIComponent(buzzerUrl)}" style="border-radius:6px;">`;
+                }
+            });
+        }
+
+        // ============================================================
         // INIT
         // ============================================================
+        generateQRCodes();
         renderScoreboard();
     </script>
 </body>

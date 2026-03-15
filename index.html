@@ -18,6 +18,7 @@
         </div>
         <div class="header-actions">
             <span class="status-badge waiting" id="syncStatus">DISPLAY NOT LINKED</span>
+            <button class="btn-undo" id="undoBtn" onclick="undoLastAction()" disabled title="Undo last score change">↩ Undo</button>
             <button class="btn-open-display" onclick="openDisplay()">&#9654; Open Projector Display</button>
         </div>
     </div>
@@ -599,7 +600,8 @@
             r1: { qIndex: 0, currentTeam: 0, timerRunning: false, timerVal: 60, selectedOption: -1, answered: false, revealed: false },
             r2: { turnIndex: 0, board: [], activeCell: null, buzzerTeam: -1, resolved: false, wrongOpened: false, selectedOption: -1, helpUsed: false },
             r3: { qIndex: 0, bets: [0, 0, 0, 0], betsLocked: false, activeTeam: -1, challengerTeam: -1, currentBet: 0, selectedOption: -1 },
-            r4: { qIndex: 0, optionsShown: false, buzzedTeam: -1, buzzedEarly: false, active: false, excludedTeam: -1, selectedOption: -1 }
+            r4: { qIndex: 0, optionsShown: false, buzzedTeam: -1, buzzedEarly: false, active: false, excludedTeam: -1, selectedOption: -1 },
+            undoStack: []
         };
 
         let timerInterval = null;
@@ -686,6 +688,39 @@
             });
             el.innerHTML = html;
             saveState();
+        }
+
+        // ============================================================
+        // UNDO SYSTEM
+        // ============================================================
+        function pushUndo(description, teamIdx, delta) {
+            STATE.undoStack.push({ description, teamIdx, delta });
+            // Keep max 10 undo steps
+            if (STATE.undoStack.length > 10) STATE.undoStack.shift();
+            const btn = document.getElementById('undoBtn');
+            btn.disabled = false;
+            btn.title = `Undo: ${description}`;
+            btn.textContent = `↩ Undo: ${description}`;
+        }
+
+        function undoLastAction() {
+            const last = STATE.undoStack.pop();
+            if (!last) return;
+            STATE.teams[last.teamIdx].score -= last.delta;
+            updateSidebarScores();
+            updateScoreTable();
+            sendToDisplay('UPDATE_SCORES', { teams: STATE.teams });
+            logEvent('UNDO', `Undid "${last.description}" — ${STATE.teams[last.teamIdx].name} score restored`);
+            // Update button
+            const btn = document.getElementById('undoBtn');
+            if (STATE.undoStack.length === 0) {
+                btn.disabled = true;
+                btn.textContent = '↩ Undo';
+            } else {
+                const prev = STATE.undoStack[STATE.undoStack.length - 1];
+                btn.title = `Undo: ${prev.description}`;
+                btn.textContent = `↩ Undo: ${prev.description}`;
+            }
         }
 
         // ============================================================
@@ -1054,6 +1089,7 @@
             const cell = STATE.r2.board[STATE.r2.activeCell];
             const teamIdx = STATE.r2.turnIndex % 4;
             STATE.teams[teamIdx].score += cell.points;
+            pushUndo(`R2 Correct: ${STATE.teams[teamIdx].name} +${cell.points}`, teamIdx, cell.points);
             cell.status = 'used';
             sfxCorrect();
             logEvent('R2', `${STATE.teams[teamIdx].name} +${cell.points} (${cell.categoryLabel} ${cell.points})`);
@@ -1067,6 +1103,7 @@
             const cell = STATE.r2.board[STATE.r2.activeCell];
             const teamIdx = STATE.r2.turnIndex % 4;
             STATE.teams[teamIdx].score -= cell.points;
+            pushUndo(`R2 Wrong: ${STATE.teams[teamIdx].name} -${cell.points}`, teamIdx, -cell.points);
             cell.status = 'used';
             updateSidebarScores();
 
@@ -1112,6 +1149,7 @@
             const cell = STATE.r2.board[STATE.r2.activeCell];
             const teamIdx = STATE.r2.turnIndex % 4;
             STATE.teams[teamIdx].score -= 20;
+            pushUndo(`R2 Help: ${STATE.teams[teamIdx].name} -20`, teamIdx, -20);
             STATE.r2.helpUsed = true;
             updateSidebarScores();
             sfxWarning();
@@ -1144,6 +1182,7 @@
             if (STATE.r2.activeCell === null || STATE.r2.resolved) return;
             const cell = STATE.r2.board[STATE.r2.activeCell];
             STATE.teams[STATE.r2.buzzerTeam].score += cell.points;
+            pushUndo(`R2 Buzz Correct: ${STATE.teams[STATE.r2.buzzerTeam].name} +${cell.points}`, STATE.r2.buzzerTeam, cell.points);
             cell.status = 'used';
             sfxCorrect();
             logEvent('R2', `${STATE.teams[STATE.r2.buzzerTeam].name} +${cell.points} (buzzer correct)`);
@@ -1157,6 +1196,7 @@
             if (STATE.r2.activeCell === null || STATE.r2.resolved) return;
             const cell = STATE.r2.board[STATE.r2.activeCell];
             STATE.teams[STATE.r2.buzzerTeam].score -= cell.points;
+            pushUndo(`R2 Buzz Wrong: ${STATE.teams[STATE.r2.buzzerTeam].name} -${cell.points}`, STATE.r2.buzzerTeam, -cell.points);
             cell.status = 'used';
             sfxWrong();
             logEvent('R2', `${STATE.teams[STATE.r2.buzzerTeam].name} -${cell.points} (buzzer wrong)`);
@@ -1327,6 +1367,7 @@
             if (STATE.r3.activeTeam < 0) return;
             const bet = STATE.r3.bets[STATE.r3.activeTeam];
             STATE.teams[STATE.r3.activeTeam].score += bet;
+            pushUndo(`R3 Correct: ${STATE.teams[STATE.r3.activeTeam].name} +${bet}`, STATE.r3.activeTeam, bet);
             updateSidebarScores();
             sfxCorrect();
             logEvent('R3', `${STATE.teams[STATE.r3.activeTeam].name} +${bet} (bet correct)`);
@@ -1339,6 +1380,7 @@
             if (STATE.r3.activeTeam < 0) return;
             const bet = STATE.r3.bets[STATE.r3.activeTeam];
             STATE.teams[STATE.r3.activeTeam].score -= bet;
+            pushUndo(`R3 Wrong: ${STATE.teams[STATE.r3.activeTeam].name} -${bet}`, STATE.r3.activeTeam, -bet);
             updateSidebarScores();
             sfxWrong();
             logEvent('R3', `${STATE.teams[STATE.r3.activeTeam].name} -${bet} (bet wrong)`);
@@ -1366,6 +1408,7 @@
             const originalBet = STATE.r3.bets[STATE.r3.activeTeam];
             const reward = originalBet * 2;
             STATE.teams[STATE.r3.challengerTeam].score += reward;
+            pushUndo(`R3 Challenge Win: ${STATE.teams[STATE.r3.challengerTeam].name} +${reward}`, STATE.r3.challengerTeam, reward);
             updateSidebarScores();
             sfxCorrect();
             logEvent('R3', `${STATE.teams[STATE.r3.challengerTeam].name} challenge correct +${reward}`);
@@ -1376,6 +1419,7 @@
             const originalBet = STATE.r3.bets[STATE.r3.activeTeam];
             const penalty = Math.floor(originalBet / 2);
             STATE.teams[STATE.r3.challengerTeam].score -= penalty;
+            pushUndo(`R3 Challenge Fail: ${STATE.teams[STATE.r3.challengerTeam].name} -${penalty}`, STATE.r3.challengerTeam, -penalty);
             updateSidebarScores();
             sfxWrong();
             logEvent('R3', `${STATE.teams[STATE.r3.challengerTeam].name} challenge wrong -${penalty}`);
@@ -1533,6 +1577,7 @@
 
         function r4AnswerCorrect() {
             STATE.teams[STATE.r4.buzzedTeam].score += 20;
+            pushUndo(`R4 Q${STATE.r4.qIndex + 1} Correct: ${STATE.teams[STATE.r4.buzzedTeam].name} +20`, STATE.r4.buzzedTeam, 20);
             updateSidebarScores();
             sfxCorrect();
             logEvent('R4', `Q${STATE.r4.qIndex + 1}: ${STATE.teams[STATE.r4.buzzedTeam].name} +20${STATE.r4.buzzedEarly ? ' (early buzz)' : ''}`);
@@ -1545,6 +1590,7 @@
 
         function r4AnswerWrong() {
             STATE.teams[STATE.r4.buzzedTeam].score -= 10;
+            pushUndo(`R4 Q${STATE.r4.qIndex + 1} Wrong: ${STATE.teams[STATE.r4.buzzedTeam].name} -10`, STATE.r4.buzzedTeam, -10);
             updateSidebarScores();
             sfxWrong();
             logEvent('R4', `Q${STATE.r4.qIndex + 1}: ${STATE.teams[STATE.r4.buzzedTeam].name} -10`);

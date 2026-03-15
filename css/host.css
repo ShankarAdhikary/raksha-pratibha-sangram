@@ -517,6 +517,24 @@ body {
 }
 .btn-open-display:hover { opacity: 0.9; }
 
+.btn-undo {
+  background: transparent;
+  color: var(--warning);
+  border: 1px solid var(--warning);
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btn-undo:hover:not(:disabled) { background: rgba(251,191,36,0.15); }
+.btn-undo:disabled { opacity: 0.3; cursor: not-allowed; }
+
 /* ===== MISC ===== */
 .flex { display: flex; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
