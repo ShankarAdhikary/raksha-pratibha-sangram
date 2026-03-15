@@ -29,6 +29,13 @@ const MIME_TYPES = {
 // HTTP Server (static files)
 // ============================================================
 const server = http.createServer((req, res) => {
+    // Health check endpoint (required by some cloud platforms)
+    if (req.url === '/health' || req.url === '/ping') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('OK');
+        return;
+    }
+
     // Sanitize URL to prevent path traversal
     let urlPath = decodeURIComponent(req.url.split('?')[0]);
     if (urlPath === '/') urlPath = '/index.html';
