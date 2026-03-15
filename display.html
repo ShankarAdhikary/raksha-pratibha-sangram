@@ -37,7 +37,8 @@
                     <img src="images/rru-logo.png" alt="RRU Logo" style="height:100px;width:auto;margin-bottom:16px;">
                     <div class="logo-text" id="dLogoText">RAKSHA PRATIBHA SANGRAM</div>
                     <div class="tagline">The Ultimate Knowledge Battle</div>
-                    <div style="margin-top:6px;font-size:15px;color:rgba(255,255,255,0.5);">Rashtriya Raksha University</div>
+                    <div style="margin-top:6px;font-size:15px;color:rgba(255,255,255,0.5);">Rashtriya Raksha University
+                    </div>
                     <div class="waiting">Waiting for host to start…</div>
                     <!-- QR CODES FOR TEAM JOINING -->
                     <div class="qr-section" id="qrSection">
@@ -300,8 +301,8 @@
             reveal.textContent = '✓ ' + labels[correctIdx] + '. ' + q.options[correctIdx];
             reveal.classList.remove('hidden');
 
-            // Fire confetti on correct answer reveal
-            fireConfetti();
+            // Fire confetti only for Round 1 correct answers
+            if (p.round === 1 && p.teamResults?.[0]?.correct) fireConfetti();
 
             // R1: show team results
             if (p.round === 1 && p.teamResults) {
