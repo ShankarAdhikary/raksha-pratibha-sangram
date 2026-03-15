@@ -1585,17 +1585,10 @@
         let buzzerServerConnected = false;
 
         function connectBuzzerServer() {
-            const host = window.location.hostname || 'localhost';
             const isHttps = window.location.protocol === 'https:';
             const wsProtocol = isHttps ? 'wss:' : 'ws:';
-            // For deployed sites (HTTPS), don't add port. For local, use 3000
-            let url;
-            if (isHttps) {
-                url = `${wsProtocol}//${host}`;
-            } else {
-                const port = window.location.port || '3000';
-                url = `${wsProtocol}//${host}:${port}`;
-            }
+            const host = window.location.host || 'localhost:3000'; // host includes port
+            const url = `${wsProtocol}//${host}`;
 
             if (buzzerWs && buzzerWs.readyState === WebSocket.OPEN) {
                 buzzerWs.close();

@@ -462,26 +462,23 @@
         const presetTeam = urlParams.get('team');
         const presetServer = urlParams.get('server');
 
+        // Auto-hide server input on deployed sites (HTTPS) or when preset
         if (presetServer) {
             document.getElementById('serverAddr').value = presetServer;
-            // Hide server input when pre-configured
+            document.querySelector('.server-input').style.display = 'none';
+        } else if (window.location.protocol === 'https:') {
+            // On deployed HTTPS sites, auto-detect - no manual input needed
             document.querySelector('.server-input').style.display = 'none';
         }
 
         function getServerUrl() {
             const addr = document.getElementById('serverAddr').value.trim();
             if (!addr) {
-                // Auto-detect: use same host as the page
-                const host = window.location.hostname || 'localhost';
+                // Auto-detect: use same host/port as the page
                 const isHttps = window.location.protocol === 'https:';
                 const wsProtocol = isHttps ? 'wss:' : 'ws:';
-                // For deployed sites (HTTPS), don't add port. For local, use 3000
-                if (isHttps) {
-                    return `${wsProtocol}//${host}`;
-                } else {
-                    const port = window.location.port || '3000';
-                    return `${wsProtocol}//${host}:${port}`;
-                }
+                const host = window.location.host; // includes port if non-default
+                return `${wsProtocol}//${host}`;
             }
             if (addr.startsWith('ws://') || addr.startsWith('wss://')) return addr;
             // Auto-detect protocol based on current page
