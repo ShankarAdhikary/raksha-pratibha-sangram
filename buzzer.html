@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Buzzer — Raksha Pratibha Sangram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0e1a;
+            color: #fff;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .header {
+            text-align: center;
+            padding: 16px 12px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header h1 {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .team-name {
+            font-size: 24px;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        .status-bar {
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-bar.connecting {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+
+        .status-bar.connected {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .status-bar.disconnected {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .status-bar.buzzed {
+            background: rgba(79, 140, 255, 0.15);
+            color: #4f8cff;
+        }
+
+        /* Team selection screen */
+        .team-select {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            gap: 16px;
+        }
+
+        .team-select h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .team-select p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .team-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 20px;
+            border: none;
+            border-radius: 14px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+
+        .team-btn:active {
+            transform: scale(0.97);
+        }
+
+        .team-btn.t1 {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .team-btn.t2 {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .team-btn.t3 {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .team-btn.t4 {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Buzzer screen */
+        .buzzer-screen {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .buzzer-screen.active {
+            display: flex;
+        }
+
+        .question-preview {
+            text-align: center;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .question-preview .q-num {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-preview .q-text {
+            font-size: 15px;
+            margin-top: 4px;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .buzzer-btn {
+            width: min(280px, 70vw);
+            height: min(280px, 70vw);
+            border-radius: 50%;
+            border: none;
+            font-size: 32px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            color: #fff;
+            position: relative;
+            transition: transform 0.1s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buzzer-btn:active:not(.disabled) {
+            transform: scale(0.95);
+        }
+
+        .buzzer-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .buzzer-btn.buzzed {
+            animation: buzzPulse 0.5s ease;
+        }
+
+        @keyframes buzzPulse {
+            0% {
+                transform: scale(1);
+            }
+
+            30% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .buzzer-btn.t1 {
+            background: radial-gradient(circle at 40% 40%, #f87171, #dc2626 60%, #991b1b);
+            box-shadow: 0 8px 40px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+        }
+
+        .buzzer-btn.t2 {
+            background: radial-gradient(circle at 40% 40%, #60a5fa, #2563eb 60%, #1e3a8a);
+            box-shadow: 0 8px 40px rgba(59, 130, 246, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+        }
+
+        .buzzer-btn.t3 {
+            background: radial-gradient(circle at 40% 40%, #4ade80, #16a34a 60%, #14532d);
+            box-shadow: 0 8px 40px rgba(34, 197, 94, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+        }
+
+        .buzzer-btn.t4 {
+            background: radial-gradient(circle at 40% 40%, #fbbf24, #d97706 60%, #78350f);
+            box-shadow: 0 8px 40px rgba(245, 158, 11, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+        }
+
+        .buzzer-msg {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            min-height: 24px;
+        }
+
+        .round-info {
+            margin-top: 12px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .result-feedback {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            font-weight: 900;
+            z-index: 100;
+            animation: fadeResult 1.5s ease forwards;
+        }
+
+        .result-feedback.show {
+            display: flex;
+        }
+
+        .result-feedback.correct {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .result-feedback.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        @keyframes fadeResult {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            30% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1);
+            }
+        }
+
+        .waiting-msg {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 18px;
+            padding: 40px 20px;
+        }
+
+        /* R1 Mobile Options */
+        .r1-mobile-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 16px;
+        }
+
+        .r1-mobile-opt-btn {
+            padding: 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .r1-mobile-opt-btn:active {
+            transform: scale(0.97);
+        }
+
+        .r1-mobile-opt-btn.selected {
+            border-color: #4f8cff;
+            background: rgba(79, 140, 255, 0.2);
+        }
+
+        .r1-mobile-opt-btn.correct {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .r1-mobile-opt-btn.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .r1-mobile-opt-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .waiting-msg .dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0% {
+                content: '';
+            }
+
+            25% {
+                content: '.';
+            }
+
+            50% {
+                content: '..';
+            }
+
+            75% {
+                content: '...';
+            }
+        }
+
+        .server-input {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 16px;
+        }
+
+        .server-input label {
+            display: block;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 4px;
+        }
+
+        .server-input input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .server-input input:focus {
+            outline: none;
+            border-color: #4f8cff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Raksha Pratibha Sangram</h1>
+        <div class="team-name" id="teamNameHeader" style="display:none"></div>
+    </div>
+
+    <div class="status-bar connecting" id="statusBar">Connecting to server…</div>
+
+    <!-- Team Selection -->
+    <div class="team-select" id="teamSelectScreen">
+        <h2>Select Your Team</h2>
+        <p>Choose the team you are playing for</p>
+        <div class="server-input">
+            <label>Server Address</label>
+            <input type="text" id="serverAddr" placeholder="e.g. 192.168.1.5:3000">
+        </div>
+        <div style="height:12px"></div>
+        <button class="team-btn t1" onclick="joinTeam(0)">Team 1</button>
+        <button class="team-btn t2" onclick="joinTeam(1)">Team 2</button>
+        <button class="team-btn t3" onclick="joinTeam(2)">Team 3</button>
+        <button class="team-btn t4" onclick="joinTeam(3)">Team 4</button>
+    </div>
+
+    <!-- Buzzer Screen -->
+    <div class="buzzer-screen" id="buzzerScreen">
+        <div class="question-preview" id="questionPreview" style="display:none">
+            <div class="q-num" id="qNum"></div>
+            <div class="q-text" id="qText"></div>
+        </div>
+
+        <button class="buzzer-btn disabled" id="buzzerBtn" onclick="pressBuzzer()">
+            BUZZ!
+        </button>
+
+        <div class="buzzer-msg" id="buzzerMsg">Waiting for question…</div>
+        <div id="r1OptionsContainer"></div>
+        <div class="round-info" id="roundInfo"></div>
+    </div>
+
+    <!-- Result feedback overlay -->
+    <div class="result-feedback" id="resultFeedback"></div>
+
+    <script>
+        let ws = null;
+        let myTeamIdx = -1;
+        let buzzerEnabled = false;
+        let hasBuzzed = false;
+        let reconnectTimer = null;
+        let teamNames = ['Team 1', 'Team 2', 'Team 3', 'Team 4'];
+
+        // Try to read team from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const presetTeam = urlParams.get('team');
+        const presetServer = urlParams.get('server');
+
+        if (presetServer) {
+            document.getElementById('serverAddr').value = presetServer;
+            // Hide server input when pre-configured
+            document.querySelector('.server-input').style.display = 'none';
+        }
+
+        function getServerUrl() {
+            const addr = document.getElementById('serverAddr').value.trim();
+            if (!addr) {
+                // Default: same host as the page
+                const host = window.location.hostname || 'localhost';
+                return `ws://${host}:3000`;
+            }
+            if (addr.startsWith('ws://') || addr.startsWith('wss://')) return addr;
+            return `ws://${addr}`;
+        }
+
+        function joinTeam(idx) {
+            myTeamIdx = idx;
+            connectWS();
+        }
+
+        function connectWS() {
+            if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+                ws.close();
+            }
+
+            const url = getServerUrl();
+            updateStatus('connecting', 'Connecting…');
+
+            try {
+                ws = new WebSocket(url);
+            } catch (e) {
+                updateStatus('disconnected', 'Invalid server address');
+                return;
+            }
+
+            ws.onopen = () => {
+                updateStatus('connected', 'Connected');
+                // Register as a buzzer client
+                ws.send(JSON.stringify({ type: 'REGISTER_BUZZER', teamIdx: myTeamIdx }));
+                showBuzzerScreen();
+                clearTimeout(reconnectTimer);
+            };
+
+            ws.onmessage = (e) => {
+                try {
+                    const msg = JSON.parse(e.data);
+                    handleMessage(msg);
+                } catch (err) { }
+            };
+
+            ws.onclose = () => {
+                updateStatus('disconnected', 'Disconnected — reconnecting…');
+                reconnectTimer = setTimeout(() => connectWS(), 3000);
+            };
+
+            ws.onerror = () => {
+                updateStatus('disconnected', 'Connection failed');
+            };
+        }
+
+        function handleMessage(msg) {
+            switch (msg.type) {
+                case 'TEAM_NAMES':
+                    teamNames = msg.names;
+                    updateTeamUI();
+                    break;
+
+                case 'BUZZER_READY':
+                    // A new question is active, enable buzzer
+                    buzzerEnabled = true;
+                    hasBuzzed = false;
+                    enableBuzzerBtn();
+                    if (msg.question) {
+                        document.getElementById('questionPreview').style.display = 'block';
+                        document.getElementById('qNum').textContent = msg.qLabel || '';
+                        document.getElementById('qText').textContent = msg.question || '';
+                    }
+                    document.getElementById('buzzerMsg').textContent = 'TAP TO BUZZ!';
+                    document.getElementById('roundInfo').textContent = msg.roundInfo || '';
+                    break;
+
+                case 'BUZZER_DISABLED':
+                    // Buzzer locked (someone else buzzed or question over)
+                    buzzerEnabled = false;
+                    disableBuzzerBtn();
+                    clearR1Options();
+                    if (msg.buzzedTeam !== undefined && msg.buzzedTeam !== myTeamIdx) {
+                        document.getElementById('buzzerMsg').textContent =
+                            `${teamNames[msg.buzzedTeam] || 'Another team'} buzzed first!`;
+                    } else if (msg.reason) {
+                        document.getElementById('buzzerMsg').textContent = msg.reason;
+                    }
+                    break;
+
+                case 'BUZZ_CONFIRMED':
+                    // Server confirmed our buzz
+                    hasBuzzed = true;
+                    buzzerEnabled = false;
+                    disableBuzzerBtn();
+                    document.getElementById('buzzerBtn').classList.add('buzzed');
+                    document.getElementById('buzzerMsg').textContent = 'YOU BUZZED! Waiting for result…';
+                    updateStatus('buzzed', '🔔 BUZZED!');
+                    // Vibrate if supported
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                    break;
+
+                case 'BUZZ_REJECTED':
+                    // Someone was faster
+                    buzzerEnabled = false;
+                    disableBuzzerBtn();
+                    document.getElementById('buzzerMsg').textContent = msg.reason || 'Too late!';
+                    break;
+
+                case 'RESULT':
+                    showResult(msg.correct);
+                    break;
+
+                case 'QUESTION_OVER':
+                    buzzerEnabled = false;
+                    hasBuzzed = false;
+                    disableBuzzerBtn();
+                    clearR1Options();
+                    document.getElementById('buzzerMsg').textContent = 'Waiting for next question…';
+                    document.getElementById('questionPreview').style.display = 'none';
+                    updateStatus('connected', 'Connected');
+                    break;
+
+                case 'R1_OPTIONS':
+                    showR1Options(msg);
+                    break;
+
+                case 'ROUND_STATUS':
+                    document.getElementById('roundInfo').textContent = msg.info || '';
+                    break;
+            }
+        }
+
+        function pressBuzzer() {
+            if (!buzzerEnabled || hasBuzzed) return;
+            if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+            ws.send(JSON.stringify({
+                type: 'BUZZ',
+                teamIdx: myTeamIdx,
+                timestamp: Date.now()
+            }));
+
+            // Optimistic UI — will be confirmed/rejected by server
+            document.getElementById('buzzerBtn').classList.add('buzzed');
+        }
+
+        function showBuzzerScreen() {
+            document.getElementById('teamSelectScreen').style.display = 'none';
+            document.getElementById('buzzerScreen').classList.add('active');
+            updateTeamUI();
+        }
+
+        function updateTeamUI() {
+            const name = teamNames[myTeamIdx] || `Team ${myTeamIdx + 1}`;
+            document.getElementById('teamNameHeader').textContent = name;
+            document.getElementById('teamNameHeader').style.display = 'block';
+            const tClass = `t${myTeamIdx + 1}`;
+            document.getElementById('buzzerBtn').className = `buzzer-btn disabled ${tClass}`;
+            document.getElementById('teamNameHeader').style.color =
+                ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b'][myTeamIdx];
+        }
+
+        function enableBuzzerBtn() {
+            const btn = document.getElementById('buzzerBtn');
+            btn.classList.remove('disabled', 'buzzed');
+            btn.textContent = 'BUZZ!';
+        }
+
+        function disableBuzzerBtn() {
+            const btn = document.getElementById('buzzerBtn');
+            btn.classList.add('disabled');
+        }
+
+        function showResult(correct) {
+            const el = document.getElementById('resultFeedback');
+            el.className = `result-feedback show ${correct ? 'correct' : 'wrong'}`;
+            el.textContent = correct ? '✓' : '✗';
+            setTimeout(() => { el.className = 'result-feedback'; }, 1500);
+        }
+
+        function updateStatus(cls, text) {
+            const bar = document.getElementById('statusBar');
+            bar.className = `status-bar ${cls}`;
+            bar.textContent = text;
+        }
+
+        function showR1Options(msg) {
+            buzzerEnabled = false;
+            hasBuzzed = false;
+
+            const labels = ['A', 'B', 'C', 'D'];
+            const qPreview = document.getElementById('questionPreview');
+            qPreview.style.display = 'block';
+            document.getElementById('qNum').textContent = msg.qLabel || 'Round 1';
+            document.getElementById('qText').textContent = msg.question || '';
+
+            // Hide buzzer button, show options instead
+            document.getElementById('buzzerBtn').style.display = 'none';
+
+            let optionsHtml = '<div class="r1-mobile-options">';
+            msg.options.forEach((opt, i) => {
+                optionsHtml += `<button class="r1-mobile-opt-btn" onclick="r1SelectMobileOption(${i})">${labels[i]}. ${opt}</button>`;
+            });
+            optionsHtml += '</div>';
+
+            document.getElementById('buzzerMsg').textContent = 'Select your answer:';
+            document.getElementById('r1OptionsContainer').innerHTML = optionsHtml;
+            document.getElementById('roundInfo').textContent = `\u23F1 ${msg.timeLimit || 60}s time limit`;
+            updateStatus('connected', 'Answer now!');
+        }
+
+        function r1SelectMobileOption(optIdx) {
+            if (hasBuzzed) return;
+            hasBuzzed = true;
+
+            document.querySelectorAll('.r1-mobile-opt-btn').forEach((btn, i) => {
+                if (i === optIdx) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.style.opacity = '0.4';
+                }
+                btn.disabled = true;
+            });
+
+            document.getElementById('buzzerMsg').textContent = 'Answer submitted! Waiting for result\u2026';
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'R1_ANSWER',
+                    teamIdx: myTeamIdx,
+                    selectedOption: optIdx,
+                    timestamp: Date.now()
+                }));
+            }
+
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function clearR1Options() {
+            const optContainer = document.getElementById('r1OptionsContainer');
+            if (optContainer) optContainer.innerHTML = '';
+            const buzzerBtn = document.getElementById('buzzerBtn');
+            buzzerBtn.style.display = 'flex';
+        }
+
+        // Auto-join if team preset in URL
+        if (presetTeam !== null) {
+            const idx = parseInt(presetTeam) - 1;
+            if (idx >= 0 && idx <= 3) {
+                joinTeam(idx);
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team 4 Buzzer</title>
+    <link rel="stylesheet" href="css/host.css">
+</head>
+
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;">
+    <div class="card" style="max-width:560px;width:100%;text-align:center;">
+        <h2>Team 4 Device</h2>
+        <p class="card-desc">If you are not redirected automatically, tap the button below.</p>
+        <a class="btn btn-primary btn-lg" id="openBtn" href="#">Open Team 4 Buzzer</a>
+    </div>
+
+    <script>
+        const serverIP = '12.10.3.57:3000'; // Update to your actual server IP and port
+        const target = `buzzer.html?team=4&server=${serverIP}`;
+        const openBtn = document.getElementById('openBtn');
+        openBtn.setAttribute('href', target);
+        window.location.replace(target);
+    </script>
+</body>
+
+</html>

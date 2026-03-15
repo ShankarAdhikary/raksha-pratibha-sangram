@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raksha Pratibha Sangram — Host Panel</title>
+    <link rel="stylesheet" href="css/host.css">
+</head>
+
+<body>
+
+    <!-- TOP HEADER -->
+    <div class="top-header">
+        <div>
+            <h1>RAKSHA PRATIBHA SANGRAM</h1>
+            <div class="subtitle">Host Control Panel</div>
+        </div>
+        <div class="header-actions">
+            <span class="status-badge waiting" id="syncStatus">DISPLAY NOT LINKED</span>
+            <button class="btn-open-display" onclick="openDisplay()">&#9654; Open Projector Display</button>
+        </div>
+    </div>
+
+    <!-- APP LAYOUT -->
+    <div class="app-layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="nav-item active" data-panel="setup" onclick="switchPanel('setup')">&#9881; Setup</div>
+            <div class="nav-item" data-panel="round1" onclick="switchPanel('round1')">&#9312; Global Horizon</div>
+            <div class="nav-item" data-panel="round2" onclick="switchPanel('round2')">&#9313; Grid Matrix</div>
+            <div class="nav-item" data-panel="round3" onclick="switchPanel('round3')">&#9314; Risk Corridor</div>
+            <div class="nav-item" data-panel="round4" onclick="switchPanel('round4')">&#9315; Blitzkrieg</div>
+            <div class="nav-item" data-panel="scores" onclick="switchPanel('scores')">&#9733; Scoreboard</div>
+            <div class="nav-item" data-panel="questions" onclick="switchPanel('questions')">&#9998; Questions</div>
+            <div class="nav-item" data-panel="log" onclick="switchPanel('log')">&#128203; Activity Log</div>
+            <div class="score-mini" id="sidebarScores">
+                <h4>Scores</h4>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+
+            <!-- ===== SETUP PANEL ===== -->
+            <div class="panel active" id="panel-setup">
+                <div class="card">
+                    <h2>Competition Setup</h2>
+                    <p class="card-desc">Configure teams and competition settings before starting.</p>
+                    <div class="form-group">
+                        <label>Competition Name</label>
+                        <input type="text" id="compName" value="Raksha Pratibha Sangram">
+                    </div>
+                    <hr>
+                    <h3>Team Configuration</h3>
+                    <div class="setup-grid">
+                        <div class="team-setup-card t1">
+                            <label>Team 1 Name</label>
+                            <input type="text" id="team1Name" placeholder="Enter Team 1 name">
+                        </div>
+                        <div class="team-setup-card t2">
+                            <label>Team 2 Name</label>
+                            <input type="text" id="team2Name" placeholder="Enter Team 2 name">
+                        </div>
+                        <div class="team-setup-card t3">
+                            <label>Team 3 Name</label>
+                            <input type="text" id="team3Name" placeholder="Enter Team 3 name">
+                        </div>
+                        <div class="team-setup-card t4">
+                            <label>Team 4 Name</label>
+                            <input type="text" id="team4Name" placeholder="Enter Team 4 name">
+                        </div>
+                    </div>
+                    <div class="mt-16 btn-group">
+                        <button class="btn btn-primary btn-lg" onclick="saveSetup()">&#10004; Save &amp;
+                            Initialize</button>
+                        <button class="btn btn-outline" onclick="resetAll()">&#8635; Reset Everything</button>
+                    </div>
+                    <hr>
+                    <div class="team-sites-section" style="margin-top:24px;">
+                        <h3>Team Sites</h3>
+                        <p class="text-sm text-muted">Share these links with each team to join from their device:</p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+                            <a class="btn btn-outline" href="team1.html" target="_blank">Team 1 Site</a>
+                            <a class="btn btn-outline" href="team2.html" target="_blank">Team 2 Site</a>
+                            <a class="btn btn-outline" href="team3.html" target="_blank">Team 3 Site</a>
+                            <a class="btn btn-outline" href="team4.html" target="_blank">Team 4 Site</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ROUND 1 PANEL ===== -->
+            <div class="panel" id="panel-round1">
+                <div class="card">
+                    <div class="flex-between">
+                        <div>
+                            <h2>Round 1 — Global Horizon</h2>
+                            <p class="card-desc">Direct Questioning • Teams answer one by one • +40 correct, 0
+                                wrong • 60s timer • No passing</p>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="r1StartRound()" id="r1StartBtn">Start Round
+                                1</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="r1ActiveArea" style="display:none">
+                    <div class="card">
+                        <div class="flex-between">
+                            <span class="text-sm text-muted" id="r1QCounter">Question 1 / 10</span>
+                            <div class="btn-group">
+                                <div class="timer-display" id="r1Timer">60</div>
+                                <button class="btn btn-sm btn-outline" onclick="r1StartTimer()" id="r1TimerBtn">&#9654;
+                                    Start Timer</button>
+                            </div>
+                        </div>
+                        <div class="r1-current-team-banner" id="r1TeamBanner">
+                            <span>&#127919; Answering Team:</span>
+                            <span class="team-tag" id="r1TeamTag"
+                                style="font-size:16px;padding:6px 16px;border-radius:20px;font-weight:700">Team 1</span>
+                            <span class="text-sm text-muted" id="r1DeviceStatus"
+                                style="display:none;margin-left:auto;color:var(--success)">&#10004; Answered from
+                                device</span>
+                        </div>
+                        <div class="question-box" id="r1QuestionBox">
+                            <div class="q-text" id="r1QText">Question text here</div>
+                            <div class="q-options" id="r1QOptions"></div>
+                            <div class="q-answer" id="r1QAnswer"></div>
+                        </div>
+                        <h3>Select Answer</h3>
+                        <p class="text-sm text-muted" style="margin-bottom:8px">Click an option below or the team can
+                            answer from their device &#128241;</p>
+                        <div class="r1-answer-btns" id="r1AnswerBtns"></div>
+                        <div class="mt-16 btn-group">
+                            <button class="btn btn-warning" onclick="r1RevealAnswer()">&#128065; Reveal Answer</button>
+                            <button class="btn btn-success" onclick="r1NextQuestion()">Next Question &#9654;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ROUND 2 PANEL ===== -->
+            <div class="panel" id="panel-round2">
+                <div class="card">
+                    <div class="flex-between">
+                        <div>
+                            <h2>Round 2 — The Grid Matrix</h2>
+                            <p class="card-desc">Jeopardy-style board • 4 categories × 4 point values • Pass → deduct,
+                                buzzer opens</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="r2StartRound()" id="r2StartBtn">Start Round 2</button>
+                    </div>
+                </div>
+
+                <div id="r2ActiveArea" style="display:none">
+                    <div class="card">
+                        <div class="r2-turn-indicator">
+                            <span class="text-sm">Current Turn:</span>
+                            <span class="team-tag" id="r2CurrentTeam"
+                                style="background:var(--team1-bg);color:var(--team1)">Team 1</span>
+                            <button class="btn btn-sm btn-outline" onclick="r2NextTurn()">Next Turn &#9654;</button>
+                        </div>
+                        <div class="btn-group mt-8" id="r2TurnBtns"></div>
+                        <div class="r2-grid" id="r2Grid"></div>
+                    </div>
+
+                    <div class="card" id="r2QuestionCard" style="display:none">
+                        <div class="flex-between mb-16">
+                            <h3 id="r2QMeta">History — 20 pts</h3>
+                            <div class="timer-display" id="r2Timer">60</div>
+                        </div>
+                        <div class="question-box">
+                            <div class="q-text" id="r2QText"></div>
+                            <div class="q-options" id="r2QOptions"></div>
+                            <div class="q-answer" id="r2QAnswer"></div>
+                        </div>
+                        <!-- Manual Option Selection Buttons -->
+                        <h3 class="mt-16">Select Answer (Manual)</h3>
+                        <div class="r1-answer-btns" id="r2AnswerBtns"></div>
+                        <div class="mt-16 btn-group">
+                            <button class="btn btn-success" onclick="r2AnswerCorrect()">&#10004; Correct</button>
+                            <button class="btn btn-danger" onclick="r2AnswerWrong()">&#10008; Wrong</button>
+                            <button class="btn btn-outline" onclick="r2Pass()">&#9940; Pass</button>
+                            <button class="btn btn-warning" onclick="r2TakeHelp()">&#129309; Take Help (-20)</button>
+                        </div>
+                        <div class="mt-8 btn-group">
+                            <button class="btn btn-outline btn-sm" onclick="r2RevealAnswer()">&#128065; Reveal Answer</button>
+                            <button class="btn btn-primary" onclick="r2FinalizeQuestion()">Next Question &#9654;</button>
+                        </div>
+                        <div id="r2BuzzerArea" style="display:none" class="mt-16">
+                            <hr>
+                            <h3 class="mb-16">Buzzer — Other Teams</h3>
+                            <div class="r4-buzzer-grid" id="r2BuzzerBtns"></div>
+                            <div class="mt-8 btn-group" id="r2BuzzerActions" style="display:none">
+                                <button class="btn btn-success btn-sm" onclick="r2BuzzerCorrect()">&#10004; Buzzer
+                                    Correct</button>
+                                <button class="btn btn-danger btn-sm" onclick="r2BuzzerWrong()">&#10008; Buzzer
+                                    Wrong</button>
+                            </div>
+                            <div class="mt-8">
+                                <button class="btn btn-outline btn-sm" onclick="r2BuzzerSkip()">&#9940; No Buzz —
+                                    Skip</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ROUND 3 PANEL ===== -->
+            <div class="panel" id="panel-round3">
+                <div class="card">
+                    <div class="flex-between">
+                        <div>
+                            <h2>Round 3 — Risk Corridor</h2>
+                            <p class="card-desc">Wagering round • Teams bet before seeing question • Challenge mechanic
+                                • 2× reward</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="r3StartRound()" id="r3StartBtn">Start Round 3</button>
+                    </div>
+                </div>
+
+                <div id="r3ActiveArea" style="display:none">
+                    <div class="card">
+                        <div class="flex-between">
+                            <span class="text-sm text-muted" id="r3QCounter">Question 1 / 6</span>
+                            <span class="text-sm text-muted" id="r3Category">Category: Defence</span>
+                        </div>
+
+                        <h3 class="mt-16">Set Bets (before revealing question)</h3>
+                        <div class="r3-bet-grid" id="r3BetGrid"></div>
+                        <div class="mt-16 btn-group">
+                            <button class="btn btn-primary" onclick="r3LockBets()" id="r3LockBetBtn">&#128274; Lock All
+                                Bets &amp; Show Question</button>
+                        </div>
+                    </div>
+
+                    <div class="card" id="r3QuestionCard" style="display:none">
+                        <div class="question-box">
+                            <div class="q-text" id="r3QText"></div>
+                            <div class="q-options" id="r3QOptions"></div>
+                            <div class="q-answer" id="r3QAnswer"></div>
+                        </div>
+                        <!-- Manual Option Selection Buttons -->
+                        <h3 class="mt-16">Select Answer (Manual)</h3>
+                        <div class="r1-answer-btns" id="r3ManualBtns"></div>
+
+                        <h3 class="mt-16">Select Answering Team</h3>
+                        <div class="btn-group mt-8" id="r3AnswerBtns"></div>
+                        <div class="mt-8 btn-group" id="r3EvalBtns" style="display:none">
+                            <button class="btn btn-success" onclick="r3AnswerCorrect()">&#10004; Correct</button>
+                            <button class="btn btn-danger" onclick="r3AnswerWrong()">&#10008; Wrong</button>
+                            <button class="btn btn-warning" onclick="r3RevealAnswer()">&#128065; Reveal</button>
+                        </div>
+
+                        <div class="r3-challenge-zone mt-16" id="r3ChallengeZone" style="display:none">
+                            <h3>&#9888; Challenge Window</h3>
+                            <p class="text-sm text-muted mt-8">Other teams can challenge the result. Select the
+                                challenging team:</p>
+                            <div class="btn-group mt-8" id="r3ChallengeBtns"></div>
+                            <div class="mt-8 btn-group" id="r3ChallengeEvalBtns" style="display:none">
+                                <button class="btn btn-success btn-sm" onclick="r3ChallengeCorrect()">&#10004; Challenge
+                                    Correct (+2×)</button>
+                                <button class="btn btn-danger btn-sm" onclick="r3ChallengeWrong()">&#10008; Challenge
+                                    Wrong</button>
+                            </div>
+                        </div>
+                        <div class="mt-16">
+                            <button class="btn btn-primary" onclick="r3NextQuestion()">Next Question &#9654;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ROUND 4 PANEL ===== -->
+            <div class="panel" id="panel-round4">
+                <div class="card">
+                    <div class="flex-between">
+                        <div>
+                            <h2>Round 4 — Blitzkrieg</h2>
+                            <p class="card-desc">Rapid-fire buzzer • 30 MCQs • +20 correct, −10 wrong • Buzz before
+                                options = no options shown</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="r4StartRound()" id="r4StartBtn">Start Round 4</button>
+                    </div>
+                    <div class="mt-8" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <label class="text-sm" style="margin:0">Auto-show options after:</label>
+                        <select id="r4AutoDelay"
+                            style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:var(--bg-card);color:var(--text-primary);font-size:13px;">
+                            <option value="0">Manual only</option>
+                            <option value="3">3 seconds</option>
+                            <option value="5" selected>5 seconds</option>
+                            <option value="7">7 seconds</option>
+                        </select>
+                        <span style="margin-left:16px;" class="text-sm">
+                            📱 Remote Buzzers: <span id="remoteBuzzerCount" class="status-badge waiting">0
+                                connected</span>
+                        </span>
+                        <button class="btn btn-sm btn-outline" onclick="connectBuzzerServer()" id="connectBuzzerBtn">🔗
+                            Connect Buzzer Server</button>
+                    </div>
+
+                    <!-- Buzzer Links for each team -->
+                    <div class="mt-16" id="buzzerLinksSection" style="display:none;">
+                        <h3 style="margin-bottom:8px;">📱 Team Buzzer Links (share with each team's phone)</h3>
+                        <p class="text-sm text-muted" style="margin-bottom:12px;">Each team opens their specific link on
+                            their phone. Run <code
+                                style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">node server.js</code>
+                            first.</p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="buzzerLinksGrid"></div>
+                    </div>
+                </div>
+
+                    <div id="r4ActiveArea" style="display:none">
+                        <!-- Excluded Team Banner -->
+                        <div class="card" id="r4ExcludedBanner" style="display:none;background:rgba(239,68,68,0.1);border-color:var(--danger);">
+                            <p style="margin:0;color:var(--danger);font-weight:600;">⚠️ <span id="r4ExcludedTeamName"></span> is excluded from Round 4 (lowest score)</p>
+                        </div>
+                        <div class="card">
+                            <div class="flex-between">
+                                <span class="r4-question-counter" id="r4QCounter">Q 1 / 30</span>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline" id="r4ShowOptBtn" onclick="r4ShowOptions()">Show
+                                        Options</button>
+                                    <button class="btn btn-sm btn-outline" onclick="r4SkipQuestion()">Skip &#9654;</button>
+                                </div>
+                            </div>
+                            <div class="question-box">
+                                <div class="q-text" id="r4QText"></div>
+                                <div id="r4OptionsArea" style="display:none">
+                                    <div class="q-options" id="r4QOptions"></div>
+                                </div>
+                                <div class="q-answer" id="r4QAnswer"></div>
+                            </div>
+                            <!-- Manual Option Selection Buttons -->
+                            <h3 class="mt-16">Select Answer (Manual)</h3>
+                            <div class="r1-answer-btns" id="r4ManualBtns"></div>
+
+                            <h3 class="mt-16">Buzzer</h3>
+                            <p class="text-sm text-muted mb-16">Click a team's buzzer or use keyboard: 1, 2, 3, 4</p>
+                            <div class="r4-buzzer-grid" id="r4BuzzerGrid"></div>
+
+                            <div id="r4AnswerArea" style="display:none" class="mt-16">
+                                <div class="flex-between">
+                                    <span id="r4BuzzedTeam" style="font-weight:700"></span>
+                                    <span id="r4BuzzedEarly" class="status-badge" style="display:none">BUZZED EARLY — No
+                                        Options</span>
+                                </div>
+                                <div class="btn-group mt-8">
+                                    <button class="btn btn-success" onclick="r4AnswerCorrect()">&#10004; Correct
+                                        (+20)</button>
+                                    <button class="btn btn-danger" onclick="r4AnswerWrong()">&#10008; Wrong (−10)</button>
+                                    <button class="btn btn-warning" onclick="r4RevealAnswer()">&#128065; Reveal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- ===== SCOREBOARD PANEL ===== -->
+            <div class="panel" id="panel-scores">
+                <div class="card">
+                    <div class="flex-between">
+                        <h2>Scoreboard</h2>
+                        <div class="btn-group">
+                            <button class="btn btn-primary btn-sm" onclick="sendScoresToDisplay()">&#128250; Show on
+                                Display</button>
+                            <button class="btn btn-warning btn-sm" onclick="declareWinner()">&#127942; Declare
+                                Winner</button>
+                        </div>
+                    </div>
+                    <table class="score-table mt-16">
+                        <thead>
+                            <tr>
+                                <th>Team</th>
+                                <th>Score</th>
+                                <th>Adjust</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoreTableBody"></tbody>
+                    </table>
+                    <div class="mt-16">
+                        <button class="btn btn-outline btn-sm" onclick="startTiebreaker()">&#9889; Start
+                            Tiebreaker</button>
+                    </div>
+                </div>
+
+                <div class="card" id="tiebreakerCard" style="display:none">
+                    <h2>&#9889; Tiebreaker</h2>
+                    <div class="question-box">
+                        <div class="q-text" id="tbQText"></div>
+                        <div class="q-options" id="tbQOptions"></div>
+                    </div>
+                    <div class="r4-buzzer-grid mt-16" id="tbBuzzerGrid"></div>
+                    <div class="btn-group mt-8" id="tbActions" style="display:none">
+                        <button class="btn btn-success" onclick="tbCorrect()">&#10004; Correct</button>
+                        <button class="btn btn-danger" onclick="tbWrong()">&#10008; Wrong</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ACTIVITY LOG PANEL ===== -->
+            <div class="panel" id="panel-log">
+                <div class="card">
+                    <div class="flex-between">
+                        <h2>&#128203; Activity Log</h2>
+                        <button class="btn btn-outline btn-sm"
+                            onclick="document.getElementById('logList').innerHTML='';LOG.length=0;">Clear Log</button>
+                    </div>
+                    <div id="logList"
+                        style="max-height:500px;overflow-y:auto;margin-top:12px;font-size:13px;font-family:monospace;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== QUESTION MANAGER PANEL ===== -->
+            <div class="panel" id="panel-questions">
+                <div class="card">
+                    <div class="flex-between">
+                        <h2>Question Manager</h2>
+                        <button class="btn btn-primary btn-sm" onclick="showAddQuestion()">+ Add Question</button>
+                    </div>
+                    <div class="form-group mt-16">
+                        <label>Filter by Round</label>
+                        <select id="qFilterRound" onchange="renderQuestionList()">
+                            <option value="all">All Rounds</option>
+                            <option value="round1">Round 1 — Global Horizon</option>
+                            <option value="round2">Round 2 — Grid Matrix</option>
+                            <option value="round3">Round 3 — Risk Corridor</option>
+                            <option value="round4">Round 4 — Blitzkrieg</option>
+                        </select>
+                    </div>
+                    <div class="q-manager-list" id="qManagerList"></div>
+                </div>
+            </div>
+
+        </div><!-- /main-content -->
+    </div><!-- /app-layout -->
+
+    <!-- ===== ADD QUESTION MODAL ===== -->
+    <div class="modal-overlay" id="addQModal">
+        <div class="modal">
+            <h3>Add New Question</h3>
+            <div class="form-group">
+                <label>Round</label>
+                <select id="aqRound" onchange="onAqRoundChange()">
+                    <option value="round1">Round 1 — Global Horizon</option>
+                    <option value="round2">Round 2 — Grid Matrix</option>
+                    <option value="round3">Round 3 — Risk Corridor</option>
+                    <option value="round4">Round 4 — Blitzkrieg</option>
+                </select>
+            </div>
+            <div class="form-group" id="aqCatGroup" style="display:none">
+                <label>Category</label>
+                <select id="aqCategory">
+                    <option value="history">History</option>
+                    <option value="geography">Geography</option>
+                    <option value="polity">Polity</option>
+                    <option value="ir">IR</option>
+                    <option value="Defence">Defence</option>
+                    <option value="Strategy">Strategy</option>
+                </select>
+            </div>
+            <div class="form-group" id="aqPointsGroup" style="display:none">
+                <label>Points</label>
+                <select id="aqPoints">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Question Text</label>
+                <textarea id="aqText" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Option A</label>
+                <input type="text" id="aqOptA">
+            </div>
+            <div class="form-group">
+                <label>Option B</label>
+                <input type="text" id="aqOptB">
+            </div>
+            <div class="form-group">
+                <label>Option C</label>
+                <input type="text" id="aqOptC">
+            </div>
+            <div class="form-group">
+                <label>Option D</label>
+                <input type="text" id="aqOptD">
+            </div>
+            <div class="form-group">
+                <label>Correct Answer</label>
+                <select id="aqAnswer">
+                    <option value="0">A</option>
+                    <option value="1">B</option>
+                    <option value="2">C</option>
+                    <option value="3">D</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeAddQuestion()">Cancel</button>
+                <button class="btn btn-primary" onclick="addQuestion()">Add Question</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/questions.js"></script>
+    <script>
+        // ============================================================
+        // SOUND EFFECTS (Web Audio API — no files needed)
+        // ============================================================
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        function ensureAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
+
+        function playTone(freq, duration, type, vol) {
+            ensureAudio();
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = type || 'sine';
+            o.frequency.value = freq;
+            g.gain.value = vol || 0.3;
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            o.stop(audioCtx.currentTime + duration);
+        }
+
+        function sfxCorrect() { playTone(523, 0.12, 'sine', 0.3); setTimeout(() => playTone(659, 0.12, 'sine', 0.3), 120); setTimeout(() => playTone(784, 0.25, 'sine', 0.3), 240); }
+        function sfxWrong() { playTone(200, 0.3, 'square', 0.2); setTimeout(() => playTone(150, 0.4, 'square', 0.2), 250); }
+        function sfxBuzzer() { playTone(880, 0.08, 'square', 0.25); setTimeout(() => playTone(1100, 0.15, 'square', 0.25), 80); }
+        function sfxTick() { playTone(1000, 0.05, 'sine', 0.1); }
+        function sfxWarning() { playTone(600, 0.1, 'triangle', 0.2); }
+        function sfxTimeUp() { playTone(400, 0.15, 'sawtooth', 0.2); setTimeout(() => playTone(300, 0.15, 'sawtooth', 0.2), 150); setTimeout(() => playTone(200, 0.3, 'sawtooth', 0.2), 300); }
+        function sfxRoundEnd() { playTone(523, 0.15, 'sine', 0.3); setTimeout(() => playTone(659, 0.15, 'sine', 0.3), 150); setTimeout(() => playTone(784, 0.15, 'sine', 0.3), 300); setTimeout(() => playTone(1047, 0.4, 'sine', 0.3), 450); }
+
+        // ============================================================
+        // ACTIVITY LOG
+        // ============================================================
+        const LOG = [];
+        function logEvent(round, msg) {
+            LOG.push({ time: new Date().toLocaleTimeString(), round, msg });
+            const el = document.getElementById('logList');
+            if (el) {
+                const row = document.createElement('div');
+                row.style.cssText = 'padding:4px 8px;border-bottom:1px solid rgba(255,255,255,0.06);';
+                row.innerHTML = `<span style="color:var(--text-muted)">${new Date().toLocaleTimeString()}</span> <span style="color:var(--accent);font-weight:700">[${round}]</span> ${msg}`;
+                el.prepend(row);
+            }
+        }
+
+        // ============================================================
+        // LOCAL STORAGE PERSISTENCE
+        // ============================================================
+        function saveState() {
+            try {
+                localStorage.setItem('rps_state', JSON.stringify({
+                    compName: STATE.compName,
+                    teams: STATE.teams,
+                    currentRound: STATE.currentRound,
+                    r1: STATE.r1,
+                    r2: { turnIndex: STATE.r2.turnIndex, board: STATE.r2.board, activeCell: STATE.r2.activeCell },
+                    r3: STATE.r3,
+                    r4: STATE.r4
+                }));
+            } catch (e) { }
+        }
+        function loadState() {
+            try {
+                const raw = localStorage.getItem('rps_state');
+                if (!raw) return false;
+                const s = JSON.parse(raw);
+                STATE.compName = s.compName;
+                STATE.teams = s.teams;
+                STATE.currentRound = s.currentRound;
+                // restore team names on setup inputs
+                document.getElementById('compName').value = s.compName;
+                for (let i = 0; i < 4; i++) document.getElementById('team' + (i + 1) + 'Name').value = s.teams[i].name;
+                return true;
+            } catch (e) { return false; }
+        }
+
+        // ============================================================
+        // GAME STATE
+        // ============================================================
+        const STATE = {
+            compName: 'Raksha Pratibha Sangram',
+            teams: [
+                { id: 0, name: 'Team 1', score: 0, color: 'var(--team1)' },
+                { id: 1, name: 'Team 2', score: 0, color: 'var(--team2)' },
+                { id: 2, name: 'Team 3', score: 0, color: 'var(--team3)' },
+                { id: 3, name: 'Team 4', score: 0, color: 'var(--team4)' }
+            ],
+            currentRound: 0,
+            questions: JSON.parse(JSON.stringify(SAMPLE_QUESTIONS)),
+            r1: { qIndex: 0, currentTeam: 0, timerRunning: false, timerVal: 60, selectedOption: -1, answered: false, revealed: false },
+            r2: { turnIndex: 0, board: [], activeCell: null, buzzerTeam: -1, resolved: false, wrongOpened: false, selectedOption: -1, helpUsed: false },
+            r3: { qIndex: 0, bets: [0, 0, 0, 0], betsLocked: false, activeTeam: -1, challengerTeam: -1, currentBet: 0, selectedOption: -1 },
+            r4: { qIndex: 0, optionsShown: false, buzzedTeam: -1, buzzedEarly: false, active: false, excludedTeam: -1, selectedOption: -1 }
+        };
+
+        let timerInterval = null;
+        let bc = null;
+
+        // ============================================================
+        // BROADCAST CHANNEL (Sync with Display)
+        // ============================================================
+        function initSync() {
+            bc = new BroadcastChannel('rps_quiz');
+            bc.onmessage = (e) => {
+                if (e.data.type === 'DISPLAY_READY') {
+                    document.getElementById('syncStatus').textContent = 'DISPLAY LINKED';
+                    document.getElementById('syncStatus').className = 'status-badge live';
+                    sendToDisplay('INIT', { compName: STATE.compName, teams: STATE.teams });
+                }
+            };
+        }
+
+        function sendToDisplay(type, payload) {
+            if (bc) bc.postMessage({ type, payload });
+        }
+
+        function openDisplay() {
+            window.open('display.html', 'QuizDisplay', 'width=1280,height=800');
+        }
+
+        // ============================================================
+        // PANEL NAVIGATION
+        // ============================================================
+        function switchPanel(name) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('panel-' + name).classList.add('active');
+            document.querySelector(`.nav-item[data-panel="${name}"]`).classList.add('active');
+        }
+
+        // ============================================================
+        // SETUP
+        // ============================================================
+        function saveSetup() {
+            STATE.compName = document.getElementById('compName').value || 'Raksha Pratibha Sangram';
+            for (let i = 0; i < 4; i++) {
+                const val = document.getElementById('team' + (i + 1) + 'Name').value.trim();
+                STATE.teams[i].name = val || ('Team ' + (i + 1));
+            }
+            updateSidebarScores();
+            updateScoreTable();
+            sendToDisplay('INIT', { compName: STATE.compName, teams: STATE.teams });
+            // Update buzzer server with team names
+            if (buzzerWs && buzzerWs.readyState === WebSocket.OPEN) {
+                buzzerWs.send(JSON.stringify({
+                    type: 'UPDATE_TEAM_NAMES',
+                    names: STATE.teams.map(t => t.name)
+                }));
+                generateBuzzerLinks();
+            }
+            switchPanel('round1');
+        }
+
+        function resetAll() {
+            if (!confirm('Reset ALL data including scores and questions?')) return;
+            STATE.teams.forEach(t => t.score = 0);
+            STATE.r1 = { qIndex: 0, currentTeam: 0, timerRunning: false, timerVal: 60, selectedOption: -1, answered: false, revealed: false };
+            STATE.r2 = { turnIndex: 0, board: [], activeCell: null, buzzerTeam: -1, resolved: false, wrongOpened: false, selectedOption: -1, helpUsed: false };
+            STATE.r3 = { qIndex: 0, bets: [0, 0, 0, 0], betsLocked: false, activeTeam: -1, challengerTeam: -1, currentBet: 0 };
+            STATE.r4 = { qIndex: 0, optionsShown: false, buzzedTeam: -1, buzzedEarly: false, active: false };
+            STATE.questions = JSON.parse(JSON.stringify(SAMPLE_QUESTIONS));
+            updateSidebarScores();
+            updateScoreTable();
+            sendToDisplay('INIT', { compName: STATE.compName, teams: STATE.teams });
+            sendToDisplay('SHOW_WELCOME', {});
+        }
+
+        // ============================================================
+        // SIDEBAR SCORES
+        // ============================================================
+        function updateSidebarScores() {
+            const el = document.getElementById('sidebarScores');
+            const colors = ['var(--team1)', 'var(--team2)', 'var(--team3)', 'var(--team4)'];
+            let html = '<h4>Scores</h4>';
+            STATE.teams.forEach((t, i) => {
+                html += `<div class="score-row"><span><span class="team-dot" style="background:${colors[i]}"></span>${t.name}</span><span>${t.score}</span></div>`;
+            });
+            el.innerHTML = html;
+            saveState();
+        }
+
+        // ============================================================
+        // SCORE TABLE
+        // ============================================================
+        function updateScoreTable() {
+            const tb = document.getElementById('scoreTableBody');
+            if (!tb) return;
+            const colors = ['var(--team1)', 'var(--team2)', 'var(--team3)', 'var(--team4)'];
+            let html = '';
+            STATE.teams.forEach((t, i) => {
+                html += `<tr>
+      <td><span class="team-dot" style="background:${colors[i]}"></span> ${t.name}</td>
+      <td class="score-val">${t.score}</td>
+      <td>
+        <input class="score-edit" type="number" value="${t.score}" onchange="manualScore(${i}, this.value)">
+        <button class="btn btn-sm btn-outline" onclick="adjustScore(${i}, 10)">+10</button>
+        <button class="btn btn-sm btn-outline" onclick="adjustScore(${i}, -10)">-10</button>
+      </td>
+    </tr>`;
+            });
+            tb.innerHTML = html;
+        }
+
+        function manualScore(teamIdx, val) {
+            STATE.teams[teamIdx].score = parseInt(val) || 0;
+            updateSidebarScores();
+            sendToDisplay('UPDATE_SCORES', { teams: STATE.teams });
+        }
+
+        function adjustScore(teamIdx, delta) {
+            STATE.teams[teamIdx].score += delta;
+            updateScoreTable();
+            updateSidebarScores();
+            sendToDisplay('UPDATE_SCORES', { teams: STATE.teams });
+        }
+
+        function sendScoresToDisplay() {
+            sendToDisplay('SHOW_SCOREBOARD', { teams: STATE.teams });
+        }
+
+        // ============================================================
+        // ROUND 1 — GLOBAL HORIZON
+        // ============================================================
+        function r1StartRound() {
+            STATE.currentRound = 1;
+            STATE.r1.qIndex = 0;
+            STATE.r1.currentTeam = 0;
+            document.getElementById('r1StartBtn').disabled = true;
+            document.getElementById('r1ActiveArea').style.display = 'block';
+            sendToDisplay('START_ROUND', { round: 1, title: 'Global Horizon' });
+            r1LoadQuestion();
+        }
+
+        function r1LoadQuestion() {
+            // Only allow 8 questions in Round 1
+            const qs = STATE.questions.round1.slice(0, 8);
+            if (STATE.r1.qIndex >= 8) {
+                alert('Round 1 complete!');
+                sendToDisplay('ROUND_COMPLETE', { round: 1, teams: STATE.teams });
+                return;
+            }
+            const q = qs[STATE.r1.qIndex];
+            const teamIdx = STATE.r1.currentTeam;
+            STATE.r1.selectedOption = -1;
+            STATE.r1.answered = false;
+            STATE.r1.revealed = false;
+            STATE.r1.timerVal = 60;
+            STATE.r1.timerRunning = false;
+            clearInterval(timerInterval);
+
+            document.getElementById('r1QCounter').textContent = `Question ${STATE.r1.qIndex + 1} / 8`;
+            document.getElementById('r1QText').textContent = q.text;
+            document.getElementById('r1Timer').textContent = '60';
+            document.getElementById('r1Timer').className = 'timer-display';
+            document.getElementById('r1TimerBtn').textContent = '\u25B6 Start Timer';
+            document.getElementById('r1QAnswer').classList.remove('revealed');
+            document.getElementById('r1DeviceStatus').style.display = 'none';
+
+            // Update team banner
+            const colors = ['var(--team1)', 'var(--team2)', 'var(--team3)', 'var(--team4)'];
+            const bgs = ['var(--team1-bg)', 'var(--team2-bg)', 'var(--team3-bg)', 'var(--team4-bg)'];
+            const tag = document.getElementById('r1TeamTag');
+            tag.textContent = STATE.teams[teamIdx].name;
+            tag.style.background = bgs[teamIdx];
+            tag.style.color = colors[teamIdx];
+
+            const optEl = document.getElementById('r1QOptions');
+            const labels = ['A', 'B', 'C', 'D'];
+            optEl.innerHTML = q.options.map((o, i) => `<div class="q-option" id="r1opt${i}">${labels[i]}. ${o}</div>`).join('');
+
+            // Answer buttons for host
+            const abEl = document.getElementById('r1AnswerBtns');
+            abEl.innerHTML = q.options.map((o, i) => `<button class="r1-ans-btn" onclick="r1SelectOption(${i})" id="r1abtn${i}">${labels[i]}. ${o}</button>`).join('');
+
+            sendToDisplay('SHOW_QUESTION', {
+                round: 1, question: q, qNum: STATE.r1.qIndex + 1, total: qs.length,
+                currentTeam: teamIdx, teamName: STATE.teams[teamIdx].name
+            });
+
+            // Send options to team's buzzer device
+            r1SendOptionsToDevice(teamIdx, q);
+
+            // Auto-start timer after question loads
+            setTimeout(() => {
+                if (!STATE.r1.timerRunning && !STATE.r1.answered && !STATE.r1.revealed) {
+                    r1StartTimer();
+                }
+            }, 500); // slight delay to ensure UI is ready
+        }
+
+        function r1SendOptionsToDevice(teamIdx, q) {
+            if (buzzerWs && buzzerWs.readyState === WebSocket.OPEN) {
+                buzzerWs.send(JSON.stringify({
+                    type: 'R1_SEND_OPTIONS',
+                    teamIdx: teamIdx,
+                    question: q.text,
+                    options: q.options,
+                    qLabel: `Q${STATE.r1.qIndex + 1} / ${STATE.questions.round1.length}`,
+                    timeLimit: 60
+                }));
+            }
+        }
+
+        function r1SelectOption(optIdx) {
+            if (STATE.r1.answered || STATE.r1.revealed) return;
+            STATE.r1.selectedOption = optIdx;
+            STATE.r1.answered = true;
+
+            // Visual feedback
+            document.querySelectorAll('.r1-ans-btn').forEach((b, i) => {
+                if (i === optIdx) b.classList.add('selected');
+                else b.style.opacity = '0.4';
+            });
+
+            // Auto-reveal after short delay
+            setTimeout(() => r1RevealAnswer(), 500);
+        }
+
+        function r1StartTimer() {
+            if (STATE.r1.timerRunning) {
+                STATE.r1.timerRunning = false;
+                clearInterval(timerInterval);
+                document.getElementById('r1TimerBtn').textContent = '\u25B6 Start Timer';
+            } else {
+                STATE.r1.timerRunning = true;
+                document.getElementById('r1TimerBtn').textContent = '\u23F8 Pause';
+                sendToDisplay('START_TIMER', { seconds: STATE.r1.timerVal });
+                timerInterval = setInterval(() => {
+                    STATE.r1.timerVal--;
+                    const el = document.getElementById('r1Timer');
+                    el.textContent = STATE.r1.timerVal;
+                    if (STATE.r1.timerVal <= 10) el.className = 'timer-display critical';
+                    else if (STATE.r1.timerVal <= 20) el.className = 'timer-display warning';
+                    sendToDisplay('TIMER_TICK', { seconds: STATE.r1.timerVal });
+                    if (STATE.r1.timerVal <= 10) sfxWarning();
+                    else sfxTick();
+                    if (STATE.r1.timerVal <= 0) {
+                        clearInterval(timerInterval);
+                        STATE.r1.timerRunning = false;
+                        sfxTimeUp();
+                        r1RevealAnswer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function r1RevealAnswer() {
+            if (STATE.r1.revealed) return;
+            STATE.r1.revealed = true;
+            clearInterval(timerInterval);
+            STATE.r1.timerRunning = false;
+
+            const q = STATE.questions.round1[STATE.r1.qIndex];
+            const correct = q.answer;
+            const teamIdx = STATE.r1.currentTeam;
+
+            // Highlight correct option
+            document.getElementById('r1opt' + correct).classList.add('correct-answer');
+            document.getElementById('r1QAnswer').textContent = '\u2713 Correct Answer: ' + ['A', 'B', 'C', 'D'][correct] + '. ' + q.options[correct];
+            document.getElementById('r1QAnswer').classList.add('revealed');
+
+            // Highlight answer buttons
+            document.querySelectorAll('.r1-ans-btn').forEach((b, i) => {
+                b.style.opacity = '1';
+                if (i === correct) b.classList.add('correct');
+                if (i === STATE.r1.selectedOption && i !== correct) b.classList.add('wrong');
+            });
+
+            // Score: +40 correct, 0 wrong
+            let delta = 0;
+            if (STATE.r1.selectedOption === correct) {
+                STATE.teams[teamIdx].score += 40;
+                delta = 40;
+                sfxCorrect();
+            } else {
+                delta = 0;
+                if (STATE.r1.selectedOption >= 0) sfxWrong();
+                else sfxTimeUp();
+            }
+
+            updateSidebarScores();
+            logEvent('R1', `Q${STATE.r1.qIndex + 1}: ${STATE.teams[teamIdx].name} ${delta > 0 ? '+40 (correct)' : '0 (wrong/no answer)'}`);
+
+            // Disable options on team's device
+            if (buzzerWs && buzzerWs.readyState === WebSocket.OPEN) {
+                buzzerWs.send(JSON.stringify({
+                    type: 'DISABLE_BUZZERS',
+                    reason: delta > 0 ? 'Correct! +40 points' : 'Time up / Wrong. 0 points'
+                }));
+            }
+
+            const teamResult = { teamIdx, correct: delta > 0, delta };
+            sendToDisplay('REVEAL_ANSWER', {
+                round: 1, correctIdx: correct,
+                teamResults: [teamResult],
+                teams: STATE.teams, question: q,
+                currentTeam: teamIdx, teamName: STATE.teams[teamIdx].name
+            });
+        }
+
+        function r1NextQuestion() {
+            STATE.r1.qIndex++;
+            STATE.r1.currentTeam = (STATE.r1.currentTeam + 1) % 4;
+            r1LoadQuestion();
+        }
+
+        // ============================================================
+        // ROUND 2 — THE GRID MATRIX
+        // ============================================================
+        function r2StartRound() {
+            STATE.currentRound = 2;
+            STATE.r2.turnIndex = 0;
+            document.getElementById('r2StartBtn').disabled = true;
+            document.getElementById('r2ActiveArea').style.display = 'block';
+            sendToDisplay('START_ROUND', { round: 2, title: 'The Grid Matrix' });
+
+            // Build board
+            const cats = ['history', 'geography', 'polity', 'ir'];
+            const catLabels = { history: 'History', geography: 'Geography', polity: 'Polity', ir: 'IR' };
+            const points = [10, 20, 30, 40];
+            STATE.r2.board = [];
+            cats.forEach(cat => {
+                points.forEach((pts, pi) => {
+                    const q = STATE.questions.round2[cat][pi];
+                    STATE.r2.board.push({
+                        category: cat,
+                        categoryLabel: catLabels[cat],
+                        points: pts,
+                        question: q,
+                        status: 'available'
+                    });
+                });
+            });
+
+            r2RenderGrid();
+            r2UpdateTurn();
+            sendToDisplay('R2_BOARD', { board: STATE.r2.board, teams: STATE.teams, turnTeam: STATE.r2.turnIndex });
+        }
+
+        function r2RenderGrid() {
+            const grid = document.getElementById('r2Grid');
+            const catClasses = { history: 'cat-history', geography: 'cat-geography', polity: 'cat-polity', ir: 'cat-ir' };
+            const cats = ['history', 'geography', 'polity', 'ir'];
+            const catLabels = { history: 'History', geography: 'Geography', polity: 'Polity', ir: 'IR' };
+
+            let html = cats.map(c => `<div class="grid-header ${catClasses[c]}">${catLabels[c]}</div>`).join('');
+
+            // Rows: 10, 20, 30, 40
+            for (let row = 0; row < 4; row++) {
+                cats.forEach((cat, ci) => {
+                    const cellIdx = ci * 4 + row;
+                    const cell = STATE.r2.board[cellIdx];
+                    const cls = cell.status === 'used' ? 'used' : (cell.status === 'active' ? 'active' : '');
+                    html += `<div class="r2-cell ${cls}" data-idx="${cellIdx}" onclick="r2SelectCell(${cellIdx})">${cell.points}</div>`;
+                });
+            }
+            grid.innerHTML = html;
+        }
+
+        function r2UpdateTurn() {
+            const teamIdx = STATE.r2.turnIndex % 4;
+            const team = STATE.teams[teamIdx];
+            const colors = ['var(--team1)', 'var(--team2)', 'var(--team3)', 'var(--team4)'];
+            const bgs = ['var(--team1-bg)', 'var(--team2-bg)', 'var(--team3-bg)', 'var(--team4-bg)'];
+            const el = document.getElementById('r2CurrentTeam');
+            el.textContent = team.name;
+            el.style.background = bgs[teamIdx];
+            el.style.color = colors[teamIdx];
+
+            const btns = document.getElementById('r2TurnBtns');
+            if (btns) {
+                btns.innerHTML = STATE.teams.map((t, i) => `<button class="btn btn-sm ${i === teamIdx ? 'btn-primary' : 'btn-outline'}" onclick="r2SetTurn(${i})">${t.name}</button>`).join('');
+            }
+        }
+
+        function r2SetTurn(teamIdx) {
+            STATE.r2.turnIndex = teamIdx;
+            r2UpdateTurn();
+            sendToDisplay('R2_TURN', { turnTeam: teamIdx, teams: STATE.teams });
+        }
+
+        function r2NextTurn() {
+            STATE.r2.turnIndex++;
+            r2UpdateTurn();
+            sendToDisplay('R2_TURN', { turnTeam: STATE.r2.turnIndex % 4, teams: STATE.teams });
+        }
+
+        function r2ClearTimer() {
+            if (window.r2TimerInterval) {
+                clearInterval(window.r2TimerInterval);
+                window.r2TimerInterval = null;
+            }
+        }
+
+        function r2SelectCell(idx) {
+            const cell = STATE.r2.board[idx];
+            if (cell.status !== 'available') return;
+
+            STATE.r2.activeCell = idx;
+            cell.status = 'active';
+            r2RenderGrid();
+
+            const q = cell.question;
+            document.getElementById('r2QMeta').textContent = `${cell.categoryLabel} — ${cell.points} pts`;
+            document.getElementById('r2QText').textContent = q.text;
+            const labels = ['A', 'B', 'C', 'D'];
+            document.getElementById('r2QOptions').innerHTML = q.options.map((o, i) => `<div class="q-option" id="r2opt${i}" onclick="r2SelectOption(${i})">${labels[i]}. ${o}</div>`).join('');
+            // Render manual answer buttons
+            document.getElementById('r2AnswerBtns').innerHTML = q.options.map((o, i) => `<button class="r1-ans-btn" onclick="r2SelectOption(${i})" id="r2abtn${i}">${labels[i]}. ${o}</button>`).join('');
+            document.getElementById('r2QAnswer').className = 'q-answer';
+            document.getElementById('r2QAnswer').textContent = '';
+            document.getElementById('r2QuestionCard').style.display = 'block';
+            document.getElementById('r2BuzzerArea').style.display = 'none';
+            STATE.r2.resolved = false;
+            STATE.r2.wrongOpened = false;
+            STATE.r2.selectedOption = -1;
+            STATE.r2.helpUsed = false;
+
+            sendToDisplay('SHOW_QUESTION', { round: 2, question: q, meta: `${cell.categoryLabel} — ${cell.points} pts`, board: STATE.r2.board });
+
+            // Auto-start 60s timer for round 2 question
+            r2ClearTimer();
+            let timerVal = 60;
+            const timerEl = document.getElementById('r2Timer');
+            timerEl.textContent = timerVal;
+            timerEl.className = 'timer-display';
+            window.r2TimerInterval = setInterval(() => {
+                timerVal--;
+                timerEl.textContent = timerVal;
+                if (timerVal <= 10) timerEl.className = 'timer-display critical';
+                else if (timerVal <= 20) timerEl.className = 'timer-display warning';
+                if (timerVal <= 10) sfxWarning();
+                else sfxTick();
+                if (timerVal <= 0) {
+                    clearInterval(window.r2TimerInterval);
+                    sfxTimeUp();
+                    // Auto-mark as wrong/pass if time up
+                    r2AnswerWrong();
+                }
+            }, 1000);
+        }
+
+        function r2AnswerCorrect() {
+            if (STATE.r2.activeCell === null || STATE.r2.resolved || STATE.r2.wrongOpened) return;
+            const cell = STATE.r2.board[STATE.r2.activeCell];
+            const teamIdx = STATE.r2.turnIndex % 4;
+            STATE.teams[teamIdx].score += cell.points;
+            cell.status = 'used';
+            sfxCorrect();
+            logEvent('R2', `${STATE.teams[teamIdx].name} +${cell.points} (${cell.categoryLabel} ${cell.points})`);
+            STATE.r2.resolved = true;
+            r2ClearTimer();
+            sendToDisplay('R2_RESULT', { correct: true, teamIdx, delta: cell.points, teams: STATE.teams, board: STATE.r2.board });
+        }
+
+        function r2AnswerWrong() {
+            if (STATE.r2.activeCell === null || STATE.r2.wrongOpened || STATE.r2.resolved) return;
+            const cell = STATE.r2.board[STATE.r2.activeCell];
+            const teamIdx = STATE.r2.turnIndex % 4;
+            STATE.teams[teamIdx].score -= cell.points;
+            cell.status = 'used';
+            updateSidebarScores();
+
+            r2ClearTimer();
+            sfxWrong();
+            logEvent('R2', `${STATE.teams[teamIdx].name} -${cell.points} (wrong)`);
+            STATE.r2.resolved = true;
+            sendToDisplay('R2_RESULT', { correct: false, teamIdx, delta: -cell.points, teams: STATE.teams, board: STATE.r2.board });
+        }
+
+        function r2Pass() {
+            if (STATE.r2.activeCell === null || STATE.r2.wrongOpened || STATE.r2.resolved) return;
+            const cell = STATE.r2.board[STATE.r2.activeCell];
+            const teamIdx = STATE.r2.turnIndex % 4;
+
+            r2ClearTimer();
+
+            // Open challenge phase for other teams
+            document.getElementById('r2BuzzerArea').style.display = 'block';
+            const buzzerEl = document.getElementById('r2BuzzerBtns');
+            const tClasses = ['t1', 't2', 't3', 't4'];
+            buzzerEl.innerHTML = STATE.teams.map((t, i) => {
+                if (i === teamIdx) return '';
+                return `<div class="r4-buzzer-btn ${tClasses[i]}" onclick="r2ChallengeTeam(${i})">${t.name}<div class="shortcut">Challenge</div></div>`;
+            }).join('');
+            document.getElementById('r2BuzzerActions').style.display = 'none';
+
+            logEvent('R2', `${STATE.teams[teamIdx].name} passed (${cell.categoryLabel} ${cell.points})`);
+            sendToDisplay('R2_WRONG_OPEN_BUZZER', { teamIdx, delta: 0, teams: STATE.teams, board: STATE.r2.board });
+
+            // Enable remote buzzers for other teams (if needed)
+            STATE.r2.buzzerTeam = -1;
+            STATE.r2.wrongOpened = true;
+            notifyBuzzerServerEnable('Challenge — press to answer!', `${cell.categoryLabel} ${cell.points}`, 'Round 2 — Grid Matrix');
+        }
+
+        function r2TakeHelp() {
+            if (STATE.r2.activeCell === null || STATE.r2.resolved) return;
+            if (STATE.r2.helpUsed) {
+                alert('Help already used for this question!');
+                return;
+            }
+            const cell = STATE.r2.board[STATE.r2.activeCell];
+            const teamIdx = STATE.r2.turnIndex % 4;
+            STATE.teams[teamIdx].score -= 20;
+            STATE.r2.helpUsed = true;
+            updateSidebarScores();
+            sfxWarning();
+            logEvent('R2', `${STATE.teams[teamIdx].name} -20 (took help for ${cell.categoryLabel} ${cell.points})`);
+            sendToDisplay('UPDATE_SCORES', { teams: STATE.teams });
+            alert(`${STATE.teams[teamIdx].name} took help! -20 points deducted. They can now consult their team member.`);
+        }
+
+        // Challenge phase logic for round 2
+        function r2ChallengeTeam(challengerIdx) {
+            STATE.r2.buzzerTeam = challengerIdx;
+            sfxBuzzer();
+            document.querySelectorAll('#r2BuzzerBtns .r4-buzzer-btn').forEach(b => b.style.opacity = '0.3');
+            document.querySelector(`#r2BuzzerBtns .t${challengerIdx + 1}`).style.opacity = '1';
+            document.querySelector(`#r2BuzzerBtns .t${challengerIdx + 1}`).classList.add('buzzed');
+            // Show host controls for challenge result
+            document.getElementById('r2BuzzerActions').style.display = 'flex';
+        }
+        function r2BuzzerHit(teamIdx) {
+            STATE.r2.buzzerTeam = teamIdx;
+            sfxBuzzer();
+            document.querySelectorAll('#r2BuzzerBtns .r4-buzzer-btn').forEach(b => b.style.opacity = '0.3');
+            document.querySelector(`#r2BuzzerBtns .t${teamIdx + 1}`).style.opacity = '1';
+            document.querySelector(`#r2BuzzerBtns .t${teamIdx + 1}`).classList.add('buzzed');
+            document.getElementById('r2BuzzerActions').style.display = 'flex';
+            sendToDisplay('R2_BUZZER', { teamIdx, teamName: STATE.teams[teamIdx].name });
+        }
+
+        function r2BuzzerCorrect() {
+            if (STATE.r2.activeCell === null || STATE.r2.resolved) return;
+            const cell = STATE.r2.board[STATE.r2.activeCell];
+            STATE.teams[STATE.r2.buzzerTeam].score += cell.points;
+            cell.status = 'used';
+            sfxCorrect();
+            logEvent('R2', `${STATE.teams[STATE.r2.buzzerTeam].name} +${cell.points} (buzzer correct)`);
+            notifyBuzzerServerQuestionOver();
+            sendToDisplay('R2_RESULT', { correct: true, teamIdx: STATE.r2.buzzerTeam, delta: cell.points, teams: STATE.teams, board: STATE.r2.board });
+            STATE.r2.resolved = true;
+            STATE.r2.wrongOpened = false;
+        }
+
+        function r2BuzzerWrong() {
+            if (STATE.r2.activeCell === null || STATE.r2.resolved) return;
+            const cell = STATE.r2.board[STATE.r2.activeCell];
+            STATE.teams[STATE.r2.buzzerTeam].score -= cell.points;
+            cell.status = 'used';
+            sfxWrong();
+            logEvent('R2', `${STATE.teams[STATE.r2.buzzerTeam].name} -${cell.points} (buzzer wrong)`);
+            notifyBuzzerServerQuestionOver();
+            sendToDisplay('R2_RESULT', { correct: false, teamIdx: STATE.r2.buzzerTeam, delta: -cell.points, teams: STATE.teams, board: STATE.r2.board });
+            STATE.r2.resolved = true;
+            STATE.r2.wrongOpened = false;
+        }
+
+        function r2BuzzerSkip() {
+            if (STATE.r2.activeCell === null || STATE.r2.resolved) return;
+            const cell = STATE.r2.board[STATE.r2.activeCell];
+            cell.status = 'used';
+            logEvent('R2', `${cell.categoryLabel} ${cell.points} — no buzzer, skipped`);
+            notifyBuzzerServerQuestionOver();
+            sendToDisplay('R2_RESULT', { correct: false, teamIdx: -1, delta: 0, teams: STATE.teams, board: STATE.r2.board });
+            STATE.r2.resolved = true;
+            STATE.r2.wrongOpened = false;
+        }
+
+        function r2FinalizeQuestion() {
+            if (STATE.r2.activeCell === null || !STATE.r2.resolved) return;
+            r2ClearTimer();
+            r2FinishCell();
+            STATE.r2.resolved = false;
+            STATE.r2.activeCell = null;
+        }
+
+        function r2RevealAnswer() {
+            const cell = STATE.r2.board[STATE.r2.activeCell];
+            const q = cell.question;
+            document.getElementById('r2opt' + q.answer).classList.add('correct-answer');
+            document.getElementById('r2QAnswer').textContent = '✓ Answer: ' + ['A', 'B', 'C', 'D'][q.answer] + '. ' + q.options[q.answer];
+            document.getElementById('r2QAnswer').className = 'q-answer revealed';
+            sendToDisplay('REVEAL_ANSWER', { round: 2, correctIdx: q.answer, question: q });
+        }
+
+        function r2FinishCell() {
+            document.getElementById('r2QuestionCard').style.display = 'none';
+            r2RenderGrid();
+            updateSidebarScores();
+            STATE.r2.turnIndex++;
+            r2UpdateTurn();
+
+            // Check if board is complete
+            if (STATE.r2.board.every(c => c.status === 'used')) {
+                alert('Round 2 complete!');
+                sendToDisplay('ROUND_COMPLETE', { round: 2, teams: STATE.teams });
+            }
+        }
+
+        // Manual answer selection for Round 2
+        function r2SelectOption(optIdx) {
+            // Highlight question options
+            document.querySelectorAll('#r2QOptions .q-option').forEach((el, i) => {
+                el.classList.toggle('selected', i === optIdx);
+            });
+            // Highlight answer buttons
+            document.querySelectorAll('#r2AnswerBtns .r1-ans-btn').forEach((el, i) => {
+                el.classList.toggle('selected', i === optIdx);
+            });
+            STATE.r2.selectedOption = optIdx;
+        }
+
+        // ============================================================
+        // ROUND 3 — RISK CORRIDOR
+        // ============================================================
+        function r3StartRound() {
+            STATE.currentRound = 3;
+            STATE.r3.qIndex = 0;
+            document.getElementById('r3StartBtn').disabled = true;
+            document.getElementById('r3ActiveArea').style.display = 'block';
+            sendToDisplay('START_ROUND', { round: 3, title: 'Risk Corridor' });
+            r3LoadQuestion();
+        }
+
+        function r3LoadQuestion() {
+            const qs = STATE.questions.round3;
+            if (STATE.r3.qIndex >= qs.length) {
+                alert('Round 3 complete!');
+                sendToDisplay('ROUND_COMPLETE', { round: 3, teams: STATE.teams });
+                return;
+            }
+            const q = qs[STATE.r3.qIndex];
+            STATE.r3.bets = [0, 0, 0, 0];
+            STATE.r3.betsLocked = false;
+            STATE.r3.activeTeam = -1;
+            STATE.r3.challengerTeam = -1;
+
+            document.getElementById('r3QCounter').textContent = `Question ${STATE.r3.qIndex + 1} / ${qs.length}`;
+            document.getElementById('r3Category').textContent = `Category: ${q.category}`;
+            document.getElementById('r3QuestionCard').style.display = 'none';
+            document.getElementById('r3LockBetBtn').disabled = false;
+
+            // Bet grid
+            const tClasses = ['t1', 't2', 't3', 't4'];
+            const betGrid = document.getElementById('r3BetGrid');
+            betGrid.innerHTML = STATE.teams.map((t, i) => {
+                const maxBet = Math.max(0, t.score);
+                return `<div class="r3-bet-card" style="background:var(--team${i + 1}-bg)">
+      <div class="team-name" style="font-weight:700">${t.name}</div>
+      <div class="current-score">Score: ${t.score}</div>
+      <input type="range" class="bet-range" min="${maxBet >= 10 ? 10 : 0}" max="${maxBet}" value="${maxBet >= 10 ? 10 : 0}" step="5" id="r3bet${i}" oninput="r3UpdateBetDisplay(${i})">
+      <input type="number" class="bet-input" min="${maxBet >= 10 ? 10 : 0}" max="${maxBet}" value="${maxBet >= 10 ? 10 : 0}" id="r3betVal${i}" onchange="r3UpdateBetSlider(${i})">${maxBet < 10 ? '<div style="color:var(--warning);font-size:11px;margin-top:4px">Score too low to bet</div>' : ''}
+    </div>`;
+            }).join('');
+
+            sendToDisplay('R3_BET_PHASE', { qNum: STATE.r3.qIndex + 1, total: qs.length, category: q.category, teams: STATE.teams });
+        }
+
+        function r3UpdateBetDisplay(idx) {
+            document.getElementById('r3betVal' + idx).value = document.getElementById('r3bet' + idx).value;
+        }
+
+        function r3UpdateBetSlider(idx) {
+            const val = parseInt(document.getElementById('r3betVal' + idx).value) || 0;
+            const max = Math.max(0, STATE.teams[idx].score);
+            const clamped = Math.max(0, Math.min(val, max));
+            document.getElementById('r3bet' + idx).value = clamped;
+            document.getElementById('r3betVal' + idx).value = clamped;
+        }
+
+        function r3LockBets() {
+            for (let i = 0; i < 4; i++) {
+                STATE.r3.bets[i] = parseInt(document.getElementById('r3betVal' + i).value) || 0;
+            }
+            STATE.r3.betsLocked = true;
+            STATE.r3.selectedOption = -1;
+            document.getElementById('r3LockBetBtn').disabled = true;
+
+            // Show question
+            const q = STATE.questions.round3[STATE.r3.qIndex];
+            document.getElementById('r3QText').textContent = q.text;
+            const labels = ['A', 'B', 'C', 'D'];
+            document.getElementById('r3QOptions').innerHTML = q.options.map((o, i) => `<div class="q-option" id="r3opt${i}" onclick="r3SelectOption(${i})">${labels[i]}. ${o}</div>`).join('');
+            // Render manual answer buttons
+            document.getElementById('r3ManualBtns').innerHTML = q.options.map((o, i) => `<button class="r1-ans-btn" onclick="r3SelectOption(${i})" id="r3abtn${i}">${labels[i]}. ${o}</button>`).join('');
+            document.getElementById('r3QAnswer').className = 'q-answer';
+            document.getElementById('r3QAnswer').textContent = '';
+            document.getElementById('r3QuestionCard').style.display = 'block';
+            document.getElementById('r3ChallengeZone').style.display = 'none';
+            document.getElementById('r3EvalBtns').style.display = 'none';
+
+            // Answer team buttons
+            const abEl = document.getElementById('r3AnswerBtns');
+            abEl.innerHTML = STATE.teams.map((t, i) => `<button class="btn btn-outline btn-sm" onclick="r3SelectAnswerTeam(${i})">${t.name} (Bet: ${STATE.r3.bets[i]})</button>`).join('');
+
+            sendToDisplay('SHOW_QUESTION', { round: 3, question: q, bets: STATE.r3.bets, teams: STATE.teams, qNum: STATE.r3.qIndex + 1 });
+        }
+
+        function r3SelectAnswerTeam(idx) {
+            STATE.r3.activeTeam = idx;
+            STATE.r3.currentBet = STATE.r3.bets[idx];
+            document.querySelectorAll('#r3AnswerBtns .btn').forEach(b => b.classList.remove('btn-primary'));
+            document.querySelectorAll('#r3AnswerBtns .btn')[idx].classList.add('btn-primary');
+            document.getElementById('r3EvalBtns').style.display = 'flex';
+            document.getElementById('r3ChallengeZone').style.display = 'block';
+            const cbEl = document.getElementById('r3ChallengeBtns');
+            cbEl.innerHTML = STATE.teams.map((t, i) => {
+                if (i === STATE.r3.activeTeam) return '';
+                return `<button class="btn btn-outline btn-sm" onclick="r3SelectChallenger(${i})">${t.name}</button>`;
+            }).join('');
+            document.getElementById('r3ChallengeEvalBtns').style.display = 'none';
+            sendToDisplay('R3_TEAM_ANSWERING', { teamIdx: idx, teamName: STATE.teams[idx].name });
+        }
+
+        function r3AnswerCorrect() {
+            if (STATE.r3.activeTeam < 0) return;
+            const bet = STATE.r3.bets[STATE.r3.activeTeam];
+            STATE.teams[STATE.r3.activeTeam].score += bet;
+            updateSidebarScores();
+            sfxCorrect();
+            logEvent('R3', `${STATE.teams[STATE.r3.activeTeam].name} +${bet} (bet correct)`);
+            sendToDisplay('R3_RESULT', { correct: true, teamIdx: STATE.r3.activeTeam, delta: bet, teams: STATE.teams });
+            document.getElementById('r3ChallengeZone').style.display = 'none';
+            // No challenge if correct
+        }
+
+        function r3AnswerWrong() {
+            if (STATE.r3.activeTeam < 0) return;
+            const bet = STATE.r3.bets[STATE.r3.activeTeam];
+            STATE.teams[STATE.r3.activeTeam].score -= bet;
+            updateSidebarScores();
+            sfxWrong();
+            logEvent('R3', `${STATE.teams[STATE.r3.activeTeam].name} -${bet} (bet wrong)`);
+            sendToDisplay('R3_RESULT', { correct: false, teamIdx: STATE.r3.activeTeam, delta: -bet, teams: STATE.teams });
+
+        }
+
+        function r3RevealAnswer() {
+            const q = STATE.questions.round3[STATE.r3.qIndex];
+            document.getElementById('r3opt' + q.answer).classList.add('correct-answer');
+            document.getElementById('r3QAnswer').textContent = '✓ Answer: ' + ['A', 'B', 'C', 'D'][q.answer] + '. ' + q.options[q.answer];
+            document.getElementById('r3QAnswer').className = 'q-answer revealed';
+            sendToDisplay('REVEAL_ANSWER', { round: 3, correctIdx: q.answer, question: q });
+        }
+
+        function r3SelectChallenger(idx) {
+            STATE.r3.challengerTeam = idx;
+            document.querySelectorAll('#r3ChallengeBtns .btn').forEach(b => b.classList.remove('btn-primary'));
+            document.querySelectorAll('#r3ChallengeBtns .btn').forEach(b => { if (b.textContent === STATE.teams[idx].name) b.classList.add('btn-primary'); });
+            document.getElementById('r3ChallengeEvalBtns').style.display = 'flex';
+            sendToDisplay('R3_CHALLENGER', { teamIdx: idx, teamName: STATE.teams[idx].name });
+        }
+
+        function r3ChallengeCorrect() {
+            const originalBet = STATE.r3.bets[STATE.r3.activeTeam];
+            const reward = originalBet * 2;
+            STATE.teams[STATE.r3.challengerTeam].score += reward;
+            updateSidebarScores();
+            sfxCorrect();
+            logEvent('R3', `${STATE.teams[STATE.r3.challengerTeam].name} challenge correct +${reward}`);
+            sendToDisplay('R3_CHALLENGE_RESULT', { correct: true, challengerIdx: STATE.r3.challengerTeam, delta: reward, teams: STATE.teams });
+        }
+
+        function r3ChallengeWrong() {
+            const originalBet = STATE.r3.bets[STATE.r3.activeTeam];
+            const penalty = Math.floor(originalBet / 2);
+            STATE.teams[STATE.r3.challengerTeam].score -= penalty;
+            updateSidebarScores();
+            sfxWrong();
+            logEvent('R3', `${STATE.teams[STATE.r3.challengerTeam].name} challenge wrong -${penalty}`);
+            sendToDisplay('R3_CHALLENGE_RESULT', { correct: false, challengerIdx: STATE.r3.challengerTeam, delta: -penalty, teams: STATE.teams });
+        }
+
+        function r3NextQuestion() {
+            STATE.r3.qIndex++;
+            r3LoadQuestion();
+        }
+
+        // Manual answer selection for Round 3
+        function r3SelectOption(optIdx) {
+            // Highlight question options
+            document.querySelectorAll('#r3QOptions .q-option').forEach((el, i) => {
+                el.classList.toggle('selected', i === optIdx);
+            });
+            // Highlight manual answer buttons
+            document.querySelectorAll('#r3ManualBtns .r1-ans-btn').forEach((el, i) => {
+                el.classList.toggle('selected', i === optIdx);
+            });
+            STATE.r3.selectedOption = optIdx;
+        }
+
+        // ============================================================
+        // ROUND 4 — BLITZKRIEG
+        // ============================================================
+        function r4StartRound() {
+            STATE.currentRound = 4;
+            STATE.r4.qIndex = 0;
+            STATE.r4.active = true;
+            STATE.r4.selectedOption = -1;
+
+            // Find lowest score team to exclude
+            let lowestIdx = 0;
+            let lowestScore = STATE.teams[0].score;
+            STATE.teams.forEach((t, i) => {
+                if (t.score < lowestScore) {
+                    lowestScore = t.score;
+                    lowestIdx = i;
+                }
+            });
+            STATE.r4.excludedTeam = lowestIdx;
+
+            // Show excluded team banner
+            document.getElementById('r4ExcludedBanner').style.display = 'block';
+            document.getElementById('r4ExcludedTeamName').textContent = STATE.teams[lowestIdx].name;
+
+            document.getElementById('r4StartBtn').disabled = true;
+            document.getElementById('r4ActiveArea').style.display = 'block';
+            sendToDisplay('START_ROUND', { round: 4, title: 'Blitzkrieg', excludedTeam: lowestIdx, excludedTeamName: STATE.teams[lowestIdx].name });
+            logEvent('R4', `Round 4 started. ${STATE.teams[lowestIdx].name} excluded (lowest score: ${lowestScore})`);
+            r4LoadQuestion();
+        }
+
+        function r4LoadQuestion() {
+            const qs = STATE.questions.round4;
+            if (STATE.r4.qIndex >= qs.length) {
+                STATE.r4.active = false;
+                notifyBuzzerServerDisable('Round 4 complete!');
+                alert('Round 4 complete!');
+                sendToDisplay('ROUND_COMPLETE', { round: 4, teams: STATE.teams });
+                return;
+            }
+            const q = qs[STATE.r4.qIndex];
+            STATE.r4.optionsShown = false;
+            STATE.r4.buzzedTeam = -1;
+            STATE.r4.buzzedEarly = false;
+            STATE.r4.selectedOption = -1;
+
+            document.getElementById('r4QCounter').textContent = `Q ${STATE.r4.qIndex + 1} / ${qs.length}`;
+            document.getElementById('r4QText').textContent = q.text;
+            document.getElementById('r4OptionsArea').style.display = 'none';
+            document.getElementById('r4ShowOptBtn').disabled = false;
+            // Auto-delay: show options after configured delay
+            const autoDelay = parseInt(document.getElementById('r4AutoDelay')?.value || '0');
+            if (autoDelay > 0) {
+                STATE.r4._autoTimer = setTimeout(() => { if (!STATE.r4.optionsShown && STATE.r4.buzzedTeam < 0) r4ShowOptions(); }, autoDelay * 1000);
+            }
+            document.getElementById('r4AnswerArea').style.display = 'none';
+            document.getElementById('r4QAnswer').className = 'q-answer';
+            document.getElementById('r4QAnswer').textContent = '';
+            const labels = ['A', 'B', 'C', 'D'];
+            // Render question options with click handlers
+            document.getElementById('r4QOptions').innerHTML = q.options.map((o, i) => `<div class="q-option" id="r4opt${i}" onclick="r4SelectOption(${i})">${labels[i]}. ${o}</div>`).join('');
+            // Render manual answer buttons
+            document.getElementById('r4ManualBtns').innerHTML = q.options.map((o, i) => `<button class="r1-ans-btn" onclick="r4SelectOption(${i})" id="r4abtn${i}">${labels[i]}. ${o}</button>`).join('');
+
+            // Buzzer grid - exclude lowest score team
+            const tClasses = ['t1', 't2', 't3', 't4'];
+            const shortcuts = ['1', '2', '3', '4'];
+            const bg = document.getElementById('r4BuzzerGrid');
+            bg.innerHTML = STATE.teams.map((t, i) => {
+                if (i === STATE.r4.excludedTeam) {
+                    return `<div class="r4-buzzer-btn ${tClasses[i]}" style="opacity:0.3;cursor:not-allowed;"><s>${t.name}</s><div class="shortcut">Excluded</div></div>`;
+                }
+                return `<div class="r4-buzzer-btn ${tClasses[i]}" onclick="r4Buzz(${i})" id="r4buzz${i}">${t.name}<div class="shortcut">Key: ${shortcuts[i]}</div></div>`;
+            }).join('');
+
+            sendToDisplay('SHOW_QUESTION', { round: 4, question: { text: q.text, options: q.options }, qNum: STATE.r4.qIndex + 1, total: qs.length, optionsHidden: true });
+
+            // Enable remote buzzers
+            notifyBuzzerServerEnable(q.text, `Q ${STATE.r4.qIndex + 1} / ${qs.length}`, 'Round 4 — Blitzkrieg');
+        }
+
+        function r4ShowOptions() {
+            STATE.r4.optionsShown = true;
+            document.getElementById('r4OptionsArea').style.display = 'block';
+            document.getElementById('r4ShowOptBtn').disabled = true;
+            sendToDisplay('R4_SHOW_OPTIONS', { options: STATE.questions.round4[STATE.r4.qIndex].options });
+        }
+
+        // Manual answer selection for Round 4
+        function r4SelectOption(optIdx) {
+            // Highlight question options
+            document.querySelectorAll('#r4QOptions .q-option').forEach((el, i) => {
+                el.classList.toggle('selected', i === optIdx);
+            });
+            // Highlight manual answer buttons
+            document.querySelectorAll('#r4ManualBtns .r1-ans-btn').forEach((el, i) => {
+                el.classList.toggle('selected', i === optIdx);
+            });
+            STATE.r4.selectedOption = optIdx;
+        }
+
+        function r4Buzz(teamIdx) {
+            if (STATE.r4.buzzedTeam >= 0) return;
+            // Block excluded team
+            if (teamIdx === STATE.r4.excludedTeam) {
+                alert(STATE.teams[teamIdx].name + ' is excluded from this round!');
+                return;
+            }
+            STATE.r4.buzzedTeam = teamIdx;
+            STATE.r4.buzzedEarly = !STATE.r4.optionsShown;
+            sfxBuzzer();
+
+            // Visual feedback
+            document.querySelectorAll('#r4BuzzerGrid .r4-buzzer-btn').forEach(b => b.style.opacity = '0.3');
+            const btn = document.getElementById('r4buzz' + teamIdx);
+            btn.style.opacity = '1';
+            btn.classList.add('buzzed');
+
+            document.getElementById('r4AnswerArea').style.display = 'block';
+            document.getElementById('r4BuzzedTeam').textContent = STATE.teams[teamIdx].name + ' buzzed!';
+            const earlyEl = document.getElementById('r4BuzzedEarly');
+            if (STATE.r4.buzzedEarly) {
+                earlyEl.style.display = 'inline-block';
+                earlyEl.className = 'status-badge warning';
+            } else {
+                earlyEl.style.display = 'none';
+            }
+
+            sendToDisplay('R4_BUZZ', { teamIdx, teamName: STATE.teams[teamIdx].name, buzzedEarly: STATE.r4.buzzedEarly });
+        }
+
+        function r4AnswerCorrect() {
+            STATE.teams[STATE.r4.buzzedTeam].score += 20;
+            updateSidebarScores();
+            sfxCorrect();
+            logEvent('R4', `Q${STATE.r4.qIndex + 1}: ${STATE.teams[STATE.r4.buzzedTeam].name} +20${STATE.r4.buzzedEarly ? ' (early buzz)' : ''}`);
+            sendToDisplay('R4_RESULT', { correct: true, teamIdx: STATE.r4.buzzedTeam, delta: 20, teams: STATE.teams });
+            notifyBuzzerServerResult(STATE.r4.buzzedTeam, true);
+            notifyBuzzerServerQuestionOver();
+            STATE.r4.qIndex++;
+            setTimeout(() => r4LoadQuestion(), 1000);
+        }
+
+        function r4AnswerWrong() {
+            STATE.teams[STATE.r4.buzzedTeam].score -= 10;
+            updateSidebarScores();
+            sfxWrong();
+            logEvent('R4', `Q${STATE.r4.qIndex + 1}: ${STATE.teams[STATE.r4.buzzedTeam].name} -10`);
+            sendToDisplay('R4_RESULT', { correct: false, teamIdx: STATE.r4.buzzedTeam, delta: -10, teams: STATE.teams });
+            notifyBuzzerServerResult(STATE.r4.buzzedTeam, false);
+            notifyBuzzerServerQuestionOver();
+            // Question is dead, move on
+            STATE.r4.qIndex++;
+            setTimeout(() => r4LoadQuestion(), 1000);
+        }
+
+        function r4RevealAnswer() {
+            const q = STATE.questions.round4[STATE.r4.qIndex];
+            document.getElementById('r4OptionsArea').style.display = 'block';
+            document.getElementById('r4opt' + q.answer).classList.add('correct-answer');
+            document.getElementById('r4QAnswer').textContent = '✓ Answer: ' + ['A', 'B', 'C', 'D'][q.answer] + '. ' + q.options[q.answer];
+            document.getElementById('r4QAnswer').className = 'q-answer revealed';
+            sendToDisplay('REVEAL_ANSWER', { round: 4, correctIdx: q.answer, question: q });
+        }
+
+        function r4SkipQuestion() {
+            notifyBuzzerServerQuestionOver();
+            STATE.r4.qIndex++;
+            r4LoadQuestion();
+        }
+
+        // Keyboard shortcuts for Round 4 buzzer
+        document.addEventListener('keydown', (e) => {
+            if (STATE.currentRound !== 4 || !STATE.r4.active) return;
+            const key = parseInt(e.key);
+            if (key >= 1 && key <= 4) r4Buzz(key - 1);
+        });
+
+        // ============================================================
+        // REMOTE BUZZER (WebSocket) INTEGRATION
+        // ============================================================
+        let buzzerWs = null;
+        let buzzerServerConnected = false;
+
+        function connectBuzzerServer() {
+            const host = window.location.hostname || 'localhost';
+            const port = 3000;
+            const url = `ws://${host}:${port}`;
+
+            if (buzzerWs && buzzerWs.readyState === WebSocket.OPEN) {
+                buzzerWs.close();
+            }
+
+            try {
+                buzzerWs = new WebSocket(url);
+            } catch (e) {
+                updateBuzzerStatus(0, false);
+                return;
+            }
+
+            buzzerWs.onopen = () => {
+                buzzerServerConnected = true;
+                buzzerWs.send(JSON.stringify({ type: 'REGISTER_HOST' }));
+                // Send team names
+                buzzerWs.send(JSON.stringify({
+                    type: 'UPDATE_TEAM_NAMES',
+                    names: STATE.teams.map(t => t.name)
+                }));
+                document.getElementById('connectBuzzerBtn').textContent = '✓ Connected';
+                document.getElementById('connectBuzzerBtn').style.borderColor = 'var(--success)';
+                document.getElementById('connectBuzzerBtn').style.color = 'var(--success)';
+                logEvent('SYS', 'Connected to buzzer server');
+                generateBuzzerLinks();
+            };
+
+            buzzerWs.onmessage = (e) => {
+                try {
+                    const msg = JSON.parse(e.data);
+                    handleBuzzerServerMsg(msg);
+                } catch (err) { }
+            };
+
+            buzzerWs.onclose = () => {
+                buzzerServerConnected = false;
+                updateBuzzerStatus(0, false);
+                document.getElementById('connectBuzzerBtn').textContent = '🔗 Connect Buzzer Server';
+                document.getElementById('connectBuzzerBtn').style.borderColor = '';
+                document.getElementById('connectBuzzerBtn').style.color = '';
+                document.getElementById('buzzerLinksSection').style.display = 'none';
+            };
+
+            buzzerWs.onerror = () => {
+                logEvent('SYS', 'Buzzer server connection failed. Run: node server.js');
+            };
+        }
+
+        function handleBuzzerServerMsg(msg) {
+            switch (msg.type) {
+                case 'BUZZER_CLIENTS':
+                    updateBuzzerStatus(msg.count, true, msg.teams);
+                    break;
+
+                case 'REMOTE_BUZZ':
+                    // A team buzzed from their phone!
+                    if (STATE.currentRound === 4 && STATE.r4.active && STATE.r4.buzzedTeam < 0) {
+                        r4Buzz(msg.teamIdx);
+                        logEvent('R4', `${STATE.teams[msg.teamIdx].name} buzzed remotely (phone)`);
+                    } else if (STATE.currentRound === 2 && document.getElementById('r2BuzzerArea').style.display !== 'none' && STATE.r2.buzzerTeam < 0) {
+                        const currentTeamIdx = (STATE.r2.turnIndex) % 4;
+                        if (msg.teamIdx !== currentTeamIdx) {
+                            r2BuzzerHit(msg.teamIdx);
+                            logEvent('R2', `${STATE.teams[msg.teamIdx].name} buzzed remotely (phone)`);
+                        }
+                    }
+                    break;
+
+                case 'R1_REMOTE_ANSWER':
+                    if (STATE.currentRound === 1 && !STATE.r1.answered && !STATE.r1.revealed && msg.teamIdx === STATE.r1.currentTeam) {
+                        document.getElementById('r1DeviceStatus').style.display = 'inline';
+                        r1SelectOption(msg.selectedOption);
+                        logEvent('R1', `${STATE.teams[msg.teamIdx].name} answered from device`);
+                    }
+                    break;
+            }
+        }
+
+        function updateBuzzerStatus(count, connected, connectedTeams) {
+            const el = document.getElementById('remoteBuzzerCount');
+            if (connected) {
+                el.textContent = `${count} connected`;
+                el.className = count > 0 ? 'status-badge live' : 'status-badge waiting';
+            } else {
+                el.textContent = '0 connected';
+                el.className = 'status-badge waiting';
+            }
+            // Update link card connection indicators
+            if (connectedTeams) {
+                for (let i = 0; i < 4; i++) {
+                    const indicator = document.getElementById('buzzerLinkStatus' + i);
+                    if (indicator) {
+                        if (connectedTeams.includes(i)) {
+                            indicator.textContent = '✓ Connected';
+                            indicator.style.color = 'var(--success)';
+                        } else {
+                            indicator.textContent = '⏳ Waiting';
+                            indicator.style.color = 'var(--text-muted)';
+                        }
+                    }
+                }
+            }
+        }
+
+        function generateBuzzerLinks() {
+            const host = window.location.hostname || 'localhost';
+            const port = 3000;
+            const baseUrl = `http://${host}:${port}/buzzer.html`;
+            const tColors = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b'];
+            const tBgs = ['rgba(239,68,68,0.1)', 'rgba(59,130,246,0.1)', 'rgba(34,197,94,0.1)', 'rgba(245,158,11,0.1)'];
+
+            const grid = document.getElementById('buzzerLinksGrid');
+            grid.innerHTML = STATE.teams.map((t, i) => {
+                const teamUrl = `${baseUrl}?team=${i + 1}&server=${host}:${port}`;
+                return `<div style="background:${tBgs[i]};border:1px solid ${tColors[i]}30;border-radius:10px;padding:12px;">
+                    <div style="font-weight:700;color:${tColors[i]};margin-bottom:4px;">${t.name}</div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;" id="buzzerLinkStatus${i}">⏳ Waiting</div>
+                    <input type="text" value="${teamUrl}" readonly onclick="this.select();document.execCommand('copy');" 
+                        style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.3);color:#fff;font-size:11px;cursor:pointer;" 
+                        title="Click to copy">
+                    <button onclick="copyBuzzerLink(this, '${teamUrl}')" 
+                        style="margin-top:6px;width:100%;padding:6px;border:none;border-radius:6px;background:${tColors[i]};color:#fff;font-size:12px;font-weight:600;cursor:pointer;">📋 Copy Link</button>
+                </div>`;
+            }).join('');
+
+            document.getElementById('buzzerLinksSection').style.display = 'block';
+        }
+
+        function copyBuzzerLink(btn, url) {
+            navigator.clipboard.writeText(url).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => { btn.textContent = orig; }, 1500);
+            }).catch(() => {
+                // Fallback: select the input
+                const input = btn.previousElementSibling;
+                input.select();
+                document.execCommand('copy');
+            });
+        }
+
+        // Send buzzer enable/disable signals to the server
+        function notifyBuzzerServerEnable(questionText, qLabel, roundInfo) {
+            if (!buzzerWs || buzzerWs.readyState !== WebSocket.OPEN) return;
+            buzzerWs.send(JSON.stringify({
+                type: 'ENABLE_BUZZERS',
+                question: questionText,
+                qLabel: qLabel,
+                roundInfo: roundInfo
+            }));
+        }
+
+        function notifyBuzzerServerDisable(reason) {
+            if (!buzzerWs || buzzerWs.readyState !== WebSocket.OPEN) return;
+            buzzerWs.send(JSON.stringify({
+                type: 'DISABLE_BUZZERS',
+                reason: reason
+            }));
+        }
+
+        function notifyBuzzerServerResult(teamIdx, correct) {
+            if (!buzzerWs || buzzerWs.readyState !== WebSocket.OPEN) return;
+            buzzerWs.send(JSON.stringify({
+                type: 'BUZZ_RESULT',
+                teamIdx: teamIdx,
+                correct: correct
+            }));
+        }
+
+        function notifyBuzzerServerQuestionOver() {
+            if (!buzzerWs || buzzerWs.readyState !== WebSocket.OPEN) return;
+            buzzerWs.send(JSON.stringify({ type: 'QUESTION_OVER' }));
+        }
+
+        // ============================================================
+        // WINNER / TIEBREAKER
+        // ============================================================
+        function declareWinner() {
+            const sorted = [...STATE.teams].sort((a, b) => b.score - a.score);
+            if (sorted[0].score === sorted[1].score) {
+                alert('There is a tie! Start a tiebreaker first.');
+                return;
+            }
+            sendToDisplay('DECLARE_WINNER', { winner: sorted[0], teams: sorted });
+        }
+
+        function startTiebreaker() {
+            document.getElementById('tiebreakerCard').style.display = 'block';
+            const q = STATE.questions.tiebreaker[0];
+            document.getElementById('tbQText').textContent = q.text;
+            const labels = ['A', 'B', 'C', 'D'];
+            document.getElementById('tbQOptions').innerHTML = q.options.map((o, i) => `<div class="q-option" id="tbopt${i}">${labels[i]}. ${o}</div>`).join('');
+
+            const tClasses = ['t1', 't2', 't3', 't4'];
+            const bg = document.getElementById('tbBuzzerGrid');
+            bg.innerHTML = STATE.teams.map((t, i) => `<div class="r4-buzzer-btn ${tClasses[i]}" onclick="tbBuzz(${i})">${t.name}</div>`).join('');
+            document.getElementById('tbActions').style.display = 'none';
+
+            sendToDisplay('TIEBREAKER', { question: q, teams: STATE.teams });
+        }
+
+        let tbBuzzedTeam = -1;
+        function tbBuzz(idx) {
+            if (tbBuzzedTeam >= 0) return;
+            tbBuzzedTeam = idx;
+            document.querySelectorAll('#tbBuzzerGrid .r4-buzzer-btn').forEach(b => b.style.opacity = '0.3');
+            document.querySelectorAll('#tbBuzzerGrid .r4-buzzer-btn')[idx].style.opacity = '1';
+            document.querySelectorAll('#tbBuzzerGrid .r4-buzzer-btn')[idx].classList.add('buzzed');
+            document.getElementById('tbActions').style.display = 'flex';
+            sendToDisplay('R4_BUZZ', { teamIdx: idx, teamName: STATE.teams[idx].name, buzzedEarly: false });
+        }
+
+        function tbCorrect() {
+            STATE.teams[tbBuzzedTeam].score += 10;
+            updateSidebarScores();
+            updateScoreTable();
+            alert(STATE.teams[tbBuzzedTeam].name + ' wins the tiebreaker!');
+            sendToDisplay('DECLARE_WINNER', { winner: STATE.teams[tbBuzzedTeam], teams: [...STATE.teams].sort((a, b) => b.score - a.score) });
+        }
+
+        function tbWrong() {
+            STATE.teams[tbBuzzedTeam].score -= 5;
+            tbBuzzedTeam = -1;
+            document.querySelectorAll('#tbBuzzerGrid .r4-buzzer-btn').forEach(b => { b.style.opacity = '1'; b.classList.remove('buzzed'); });
+            document.getElementById('tbActions').style.display = 'none';
+            updateSidebarScores();
+        }
+
+        // ============================================================
+        // QUESTION MANAGER
+        // ============================================================
+        function renderQuestionList() {
+            const filter = document.getElementById('qFilterRound').value;
+            const list = document.getElementById('qManagerList');
+            let html = '';
+            let count = 0;
+
+            function addItem(q, round, extra) {
+                count++;
+                html += `<div class="q-manager-item">
+      <span class="q-preview">${q.text}</span>
+      <span class="q-meta">${round}${extra ? ' | ' + extra : ''}</span>
+      <div class="q-actions">
+        <button class="btn btn-sm btn-danger" onclick="deleteQuestion('${round}','${q.id}')">&#10005;</button>
+      </div>
+    </div>`;
+            }
+
+            if (filter === 'all' || filter === 'round1') {
+                STATE.questions.round1.forEach(q => addItem(q, 'R1'));
+            }
+            if (filter === 'all' || filter === 'round2') {
+                ['history', 'geography', 'polity', 'ir'].forEach(cat => {
+                    STATE.questions.round2[cat].forEach(q => addItem(q, 'R2', cat + ' ' + q.points));
+                });
+            }
+            if (filter === 'all' || filter === 'round3') {
+                STATE.questions.round3.forEach(q => addItem(q, 'R3', q.category));
+            }
+            if (filter === 'all' || filter === 'round4') {
+                STATE.questions.round4.forEach(q => addItem(q, 'R4'));
+            }
+
+            list.innerHTML = html || '<div class="q-manager-item text-muted">No questions found.</div>';
+        }
+
+        function deleteQuestion(round, id) {
+            if (!confirm('Delete this question?')) return;
+            if (round === 'R1') STATE.questions.round1 = STATE.questions.round1.filter(q => q.id !== id);
+            else if (round === 'R2') {
+                ['history', 'geography', 'polity', 'ir'].forEach(cat => {
+                    STATE.questions.round2[cat] = STATE.questions.round2[cat].filter(q => q.id !== id);
+                });
+            }
+            else if (round === 'R3') STATE.questions.round3 = STATE.questions.round3.filter(q => q.id !== id);
+            else if (round === 'R4') STATE.questions.round4 = STATE.questions.round4.filter(q => q.id !== id);
+            renderQuestionList();
+        }
+
+        function showAddQuestion() {
+            document.getElementById('addQModal').classList.add('show');
+            onAqRoundChange();
+        }
+
+        function closeAddQuestion() {
+            document.getElementById('addQModal').classList.remove('show');
+        }
+
+        function onAqRoundChange() {
+            const r = document.getElementById('aqRound').value;
+            document.getElementById('aqCatGroup').style.display = (r === 'round2' || r === 'round3') ? 'block' : 'none';
+            document.getElementById('aqPointsGroup').style.display = r === 'round2' ? 'block' : 'none';
+        }
+
+        function addQuestion() {
+            const round = document.getElementById('aqRound').value;
+            const text = document.getElementById('aqText').value.trim();
+            const optA = document.getElementById('aqOptA').value.trim();
+            const optB = document.getElementById('aqOptB').value.trim();
+            const optC = document.getElementById('aqOptC').value.trim();
+            const optD = document.getElementById('aqOptD').value.trim();
+            const answer = parseInt(document.getElementById('aqAnswer').value);
+
+            if (!text || !optA || !optB || !optC || !optD) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const id = round + '_' + Date.now();
+            const q = { id, text, options: [optA, optB, optC, optD], answer };
+
+            if (round === 'round1') {
+                q.points = 10;
+                STATE.questions.round1.push(q);
+            } else if (round === 'round2') {
+                const cat = document.getElementById('aqCategory').value;
+                q.category = cat.charAt(0).toUpperCase() + cat.slice(1);
+                q.points = parseInt(document.getElementById('aqPoints').value);
+                STATE.questions.round2[cat].push(q);
+            } else if (round === 'round3') {
+                q.category = document.getElementById('aqCategory').value;
+                STATE.questions.round3.push(q);
+            } else if (round === 'round4') {
+                STATE.questions.round4.push(q);
+            }
+
+            closeAddQuestion();
+            // Clear form
+            document.getElementById('aqText').value = '';
+            document.getElementById('aqOptA').value = '';
+            document.getElementById('aqOptB').value = '';
+            document.getElementById('aqOptC').value = '';
+            document.getElementById('aqOptD').value = '';
+            renderQuestionList();
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        window.onload = function () {
+            initSync();
+            if (loadState()) {
+                logEvent('SYS', 'State restored from previous session');
+            }
+            updateSidebarScores();
+            updateScoreTable();
+            renderQuestionList();
+            // Auto-connect to buzzer server
+            connectBuzzerServer();
+        };
+    </script>
+</body>
+
+</html>

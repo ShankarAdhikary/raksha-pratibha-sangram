@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raksha Pratibha Sangram — Display</title>
+    <link rel="stylesheet" href="css/display.css">
+</head>
+
+<body>
+
+    <div class="display-layout">
+        <!-- TOP BAR -->
+        <div class="display-topbar">
+            <div style="display:flex;align-items:center;gap:16px;">
+                <img src="images/rru-logo.png" alt="RRU Logo" style="height:50px;width:auto;">
+                <div class="comp-name" id="dCompName">RAKSHA PRATIBHA SANGRAM</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div class="round-badge" id="dRoundBadge">Welcome</div>
+                <button onclick="toggleFullscreen()"
+                    style="background:none;border:1px solid rgba(255,255,255,0.2);color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:14px;"
+                    title="Toggle Fullscreen">&#x26F6;</button>
+            </div>
+        </div>
+
+        <!-- MAIN DISPLAY -->
+        <div class="display-main" id="displayMain">
+
+            <!-- WELCOME -->
+            <div class="display-view active" id="view-welcome">
+                <div class="welcome-screen">
+                    <img src="images/rru-logo.png" alt="RRU Logo" style="height:120px;width:auto;margin-bottom:20px;">
+                    <div class="logo-text" id="dLogoText">RAKSHA PRATIBHA SANGRAM</div>
+                    <div class="tagline">The Ultimate Knowledge Battle</div>
+                    <div style="margin-top:10px;font-size:16px;color:rgba(255,255,255,0.6);">Rashtriya Raksha University</div>
+                    <div class="waiting">Waiting for host to start…</div>
+                </div>
+            </div>
+
+            <!-- QUESTION VIEW (R1, R3, R4) -->
+            <div class="display-view" id="view-question">
+                <div class="d-timer" id="dTimer"></div>
+                <div class="d-question-area">
+                    <div class="d-question-counter" id="dQCounter"></div>
+                    <div class="d-question-text" id="dQText"></div>
+                    <div class="d-options-grid" id="dOptionsGrid"></div>
+                    <div class="d-answer-reveal hidden" id="dAnswerReveal"></div>
+                </div>
+                <!-- R1 team responses -->
+                <div class="d-team-responses hidden" id="dTeamResponses"></div>
+                <!-- R3 bet display -->
+                <div class="d-bet-teams hidden" id="dBetTeams"></div>
+                <!-- R3 challenge banner -->
+                <div class="d-challenge-banner hidden" id="dChallengeBanner"></div>
+                <!-- R4 buzzer display -->
+                <div class="d-buzzer-teams hidden" id="dBuzzerTeams"></div>
+            </div>
+
+            <!-- GRID VIEW (R2) -->
+            <div class="display-view" id="view-grid">
+                <div class="d-grid-board" id="dGridBoard"></div>
+            </div>
+
+            <!-- SCOREBOARD VIEW -->
+            <div class="display-view" id="view-scoreboard">
+                <!-- scores shown in sidebar, this can show a larger view -->
+            </div>
+
+            <!-- WINNER VIEW -->
+            <div class="display-view" id="view-winner">
+                <div class="winner-screen" id="winnerContent"></div>
+            </div>
+
+            <!-- ROUND COMPLETE VIEW -->
+            <div class="display-view" id="view-roundComplete">
+                <div class="winner-screen" id="roundCompleteContent"></div>
+            </div>
+
+        </div>
+
+        <!-- SCOREBOARD SIDEBAR -->
+        <div class="scoreboard-sidebar">
+            <h3>Scoreboard</h3>
+            <div id="sbTeams"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // STATE
+        // ============================================================
+        let teams = [
+            { id: 0, name: 'Team 1', score: 0 },
+            { id: 1, name: 'Team 2', score: 0 },
+            { id: 2, name: 'Team 3', score: 0 },
+            { id: 3, name: 'Team 4', score: 0 }
+        ];
+        let currentRound = 0;
+        let timerInterval = null;
+        let timerVal = 0;
+
+        // ============================================================
+        // BROADCAST CHANNEL
+        // ============================================================
+        const bc = new BroadcastChannel('rps_quiz');
+        bc.postMessage({ type: 'DISPLAY_READY' });
+
+        bc.onmessage = (e) => {
+            const { type, payload } = e.data;
+            switch (type) {
+                case 'INIT': handleInit(payload); break;
+                case 'START_ROUND': handleStartRound(payload); break;
+                case 'SHOW_QUESTION': handleShowQuestion(payload); break;
+                case 'START_TIMER': handleStartTimer(payload); break;
+                case 'TIMER_TICK': handleTimerTick(payload); break;
+                case 'TEAM_LOCKED': handleTeamLocked(payload); break;
+                case 'REVEAL_ANSWER': handleRevealAnswer(payload); break;
+                case 'UPDATE_SCORES': handleUpdateScores(payload); break;
+                case 'SHOW_SCOREBOARD': handleShowScoreboard(payload); break;
+                case 'ROUND_COMPLETE': handleRoundComplete(payload); break;
+                case 'DECLARE_WINNER': handleDeclareWinner(payload); break;
+                case 'R2_BOARD': handleR2Board(payload); break;
+                case 'R2_TURN': handleR2Turn(payload); break;
+                case 'R2_WRONG_OPEN_BUZZER': handleR2WrongOpenBuzzer(payload); break;
+                case 'R2_BUZZER': handleR2Buzzer(payload); break;
+                case 'R2_RESULT': handleR2Result(payload); break;
+                case 'R3_BET_PHASE': handleR3BetPhase(payload); break;
+                case 'R3_TEAM_ANSWERING': handleR3TeamAnswering(payload); break;
+                case 'R3_RESULT': handleR3Result(payload); break;
+                case 'R3_CHALLENGER': handleR3Challenger(payload); break;
+                case 'R3_CHALLENGE_RESULT': handleR3ChallengeResult(payload); break;
+                case 'R4_SHOW_OPTIONS': handleR4ShowOptions(payload); break;
+                case 'R4_BUZZ': handleR4Buzz(payload); break;
+                case 'R4_RESULT': handleR4Result(payload); break;
+                case 'TIEBREAKER': handleTiebreaker(payload); break;
+                case 'SHOW_WELCOME': showView('welcome'); break;
+            }
+        };
+
+        // ============================================================
+        // VIEW MANAGEMENT
+        // ============================================================
+        function showView(name) {
+            document.querySelectorAll('.display-view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + name).classList.add('active');
+        }
+
+        // ============================================================
+        // SCOREBOARD SIDEBAR
+        // ============================================================
+        function renderScoreboard(animate, deltaMap) {
+            const sb = document.getElementById('sbTeams');
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            const tClasses = ['t1', 't2', 't3', 't4'];
+
+            sb.innerHTML = sorted.map((t, rank) => {
+                const delta = deltaMap ? deltaMap[t.id] : null;
+                let deltaHtml = '';
+                let animClass = '';
+                if (delta && delta > 0) { deltaHtml = `<div class="team-delta pos">+${delta}</div>`; animClass = 'animate-up'; }
+                else if (delta && delta < 0) { deltaHtml = `<div class="team-delta neg">${delta}</div>`; animClass = 'animate-down'; }
+                return `<div class="sb-team ${tClasses[t.id]}">
+      <div class="team-rank">${rank + 1}</div>
+      <div class="team-info">
+        <div class="team-name">${t.name}</div>
+        ${deltaHtml}
+      </div>
+      <div class="team-score ${animClass}">${t.score}</div>
+    </div>`;
+            }).join('');
+        }
+
+        // ============================================================
+        // HANDLERS
+        // ============================================================
+        function handleInit(p) {
+            teams = p.teams;
+            document.getElementById('dCompName').textContent = p.compName;
+            document.getElementById('dLogoText').textContent = p.compName;
+            renderScoreboard();
+            showView('welcome');
+        }
+
+        function handleStartRound(p) {
+            currentRound = p.round;
+            const titles = { 1: 'Round 1 — Global Horizon', 2: 'Round 2 — The Grid Matrix', 3: 'Round 3 — Risk Corridor', 4: 'Round 4 — Blitzkrieg' };
+            document.getElementById('dRoundBadge').textContent = titles[p.round] || p.title;
+            if (p.round === 2) showView('grid');
+            else showView('question');
+        }
+
+        function handleShowQuestion(p) {
+            showView('question');
+            clearInterval(timerInterval);
+            document.getElementById('dTimer').textContent = '';
+            document.getElementById('dTimer').className = 'd-timer';
+            document.getElementById('dAnswerReveal').classList.add('hidden');
+            document.getElementById('dChallengeBanner').classList.add('hidden');
+            document.getElementById('dBuzzerTeams').classList.add('hidden');
+            document.getElementById('dBetTeams').classList.add('hidden');
+
+            const q = p.question;
+            document.getElementById('dQText').textContent = q.text;
+
+            if (p.qNum) {
+                document.getElementById('dQCounter').textContent = `Question ${p.qNum}` + (p.total ? ` / ${p.total}` : '');
+            } else {
+                document.getElementById('dQCounter').textContent = p.meta || '';
+            }
+
+            const labels = ['A', 'B', 'C', 'D'];
+            const optGrid = document.getElementById('dOptionsGrid');
+
+            if (p.round === 4 && p.optionsHidden) {
+                // Show question only, hide options
+                optGrid.innerHTML = `<div class="d-options-msg" style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:18px;padding:20px;">Options will appear shortly…</div>`;
+                // Show buzzer indicators
+                showR4BuzzerIndicators();
+            } else {
+                optGrid.innerHTML = q.options.map((o, i) =>
+                    `<div class="d-option" id="dopt${i}"><span class="opt-label">${labels[i]}</span><span>${o}</span></div>`
+                ).join('');
+            }
+
+            // R1: show team response indicators
+            if (p.round === 1) {
+                showR1TeamResponses(p.currentTeam, p.teamName);
+            } else {
+                document.getElementById('dTeamResponses').classList.add('hidden');
+            }
+
+            // R3: show bets
+            if (p.round === 3 && p.bets) {
+                showR3Bets(p.bets);
+            }
+
+            // R4: show buzzer indicators
+            if (p.round === 4) {
+                showR4BuzzerIndicators();
+            }
+        }
+
+        function handleStartTimer(p) {
+            timerVal = p.seconds;
+            document.getElementById('dTimer').textContent = timerVal;
+            clearInterval(timerInterval);
+        }
+
+        function handleTimerTick(p) {
+            timerVal = p.seconds;
+            const el = document.getElementById('dTimer');
+            el.textContent = timerVal;
+            if (timerVal <= 10) el.className = 'd-timer critical';
+            else if (timerVal <= 20) el.className = 'd-timer warning';
+            else el.className = 'd-timer';
+        }
+
+        function handleTeamLocked(p) {
+            if (p.round === 1) {
+                const resp = document.querySelectorAll('.d-team-response')[p.teamIdx];
+                if (resp) {
+                    resp.classList.add('locked');
+                    resp.querySelector('.resp-status').textContent = '✓ Locked In';
+                }
+            }
+        }
+
+        function handleRevealAnswer(p) {
+            const correctIdx = p.correctIdx;
+            const q = p.question;
+            const labels = ['A', 'B', 'C', 'D'];
+
+            // Re-render options with correct highlight if needed
+            const optGrid = document.getElementById('dOptionsGrid');
+            optGrid.innerHTML = q.options.map((o, i) =>
+                `<div class="d-option ${i === correctIdx ? 'correct' : 'wrong'}" style="opacity:1;animation:none"><span class="opt-label">${labels[i]}</span><span>${o}</span></div>`
+            ).join('');
+
+            const reveal = document.getElementById('dAnswerReveal');
+            reveal.textContent = '✓ ' + labels[correctIdx] + '. ' + q.options[correctIdx];
+            reveal.classList.remove('hidden');
+
+            // R1: show team results
+            if (p.round === 1 && p.teamResults) {
+                const tClasses = ['t1', 't2', 't3', 't4'];
+                const respEl = document.getElementById('dTeamResponses');
+                respEl.classList.remove('hidden');
+                respEl.innerHTML = p.teamResults.map(r => `<div class="d-team-response ${tClasses[r.teamIdx]} ${r.correct ? 'correct' : 'wrong'}" style="grid-column:1/-1">
+      <div class="resp-name" style="font-size:20px">${teams[r.teamIdx].name}</div>
+      <div class="resp-status" style="font-size:18px">${r.correct ? '\u2713 +40' : '\u2717 0'}</div>
+    </div>`).join('');
+            }
+
+            if (p.teams) {
+                teams = p.teams;
+                const deltaMap = {};
+                if (p.teamResults) {
+                    p.teamResults.forEach(r => { deltaMap[r.teamIdx] = r.delta; });
+                }
+                renderScoreboard(true, deltaMap);
+            }
+        }
+
+        function handleUpdateScores(p) {
+            teams = p.teams;
+            renderScoreboard();
+        }
+
+        function handleShowScoreboard(p) {
+            teams = p.teams;
+            renderScoreboard();
+        }
+
+        function handleRoundComplete(p) {
+            teams = p.teams;
+            renderScoreboard();
+            const roundNames = { 1: 'Global Horizon', 2: 'The Grid Matrix', 3: 'Risk Corridor', 4: 'Blitzkrieg' };
+            document.getElementById('dRoundBadge').textContent = `Round ${p.round} Complete`;
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+            const tColors = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b'];
+            document.getElementById('roundCompleteContent').innerHTML = `
+                <div style="font-size:24px;color:var(--text-muted);margin-bottom:8px;">Round ${p.round} Complete</div>
+                <div style="font-size:42px;font-weight:800;margin-bottom:30px;">${roundNames[p.round] || ''}</div>
+                <div style="font-size:20px;color:var(--text-muted);margin-bottom:20px;">Current Standings</div>
+                ${sorted.map((t, i) => `<div style="font-size:${i === 0 ? 28 : 20}px;margin:8px 0;color:${tColors[t.id]};font-weight:${i === 0 ? 800 : 400}">${i + 1}. ${t.name} — ${t.score} pts</div>`).join('')}
+            `;
+            showView('roundComplete');
+        }
+
+        function handleDeclareWinner(p) {
+            showView('winner');
+            const w = p.winner;
+            const tColors = { 0: '#ef4444', 1: '#3b82f6', 2: '#22c55e', 3: '#f59e0b' };
+            document.getElementById('winnerContent').innerHTML = `
+    <div class="trophy">🏆</div>
+    <div class="winner-label">Champion</div>
+    <div class="winner-name" style="color:${tColors[w.id] || '#4f8cff'}">${w.name}</div>
+    <div class="winner-score">${w.score} Points</div>
+    <div style="margin-top:30px">
+      ${p.teams.map((t, i) => `<div style="font-size:18px;margin:6px 0;color:${i === 0 ? 'var(--success)' : 'var(--text-secondary)'}">${i + 1}. ${t.name} — ${t.score} pts</div>`).join('')}
+    </div>
+  `;
+            document.getElementById('dRoundBadge').textContent = '🏆 Final Results';
+            renderScoreboard();
+        }
+
+        // ===== ROUND 1 SPECIFIC =====
+        function showR1TeamResponses(currentTeam, teamName) {
+            const tClasses = ['t1', 't2', 't3', 't4'];
+            const el = document.getElementById('dTeamResponses');
+            el.classList.remove('hidden');
+            if (currentTeam !== undefined && currentTeam >= 0) {
+                el.innerHTML = `<div class="d-team-response ${tClasses[currentTeam]}" style="grid-column:1/-1;text-align:center;padding:20px;">
+    <div class="resp-name" style="font-size:22px;">${teamName || teams[currentTeam].name}</div>
+    <div class="resp-status" style="font-size:16px;">Answering\u2026</div>
+  </div>`;
+            } else {
+                el.innerHTML = teams.map((t, i) => `<div class="d-team-response ${tClasses[i]}">
+    <div class="resp-name">${t.name}</div>
+    <div class="resp-status">Waiting\u2026</div>
+  </div>`).join('');
+            }
+        }
+
+        // ===== ROUND 2 SPECIFIC =====
+        function handleR2Board(p) {
+            teams = p.teams;
+            showView('grid');
+            renderR2Grid(p.board);
+            renderScoreboard();
+        }
+
+        function renderR2Grid(board) {
+            const grid = document.getElementById('dGridBoard');
+            const cats = ['history', 'geography', 'polity', 'ir'];
+            const catLabels = { history: 'History', geography: 'Geography', polity: 'Polity', ir: 'IR' };
+            const catClasses = { history: 'cat-history', geography: 'cat-geography', polity: 'cat-polity', ir: 'cat-ir' };
+
+            let html = cats.map(c => `<div class="d-grid-header ${catClasses[c]}">${catLabels[c]}</div>`).join('');
+
+            for (let row = 0; row < 4; row++) {
+                cats.forEach((cat, ci) => {
+                    const cellIdx = ci * 4 + row;
+                    const cell = board[cellIdx];
+                    const cls = cell.status === 'used' ? 'used' : (cell.status === 'active' ? 'active' : '');
+                    html += `<div class="d-grid-cell ${cls}">${cell.status === 'used' ? '—' : cell.points}</div>`;
+                });
+            }
+            grid.innerHTML = html;
+        }
+
+        function handleR2Turn(p) {
+            teams = p.teams;
+            renderScoreboard();
+        }
+
+        function handleR2WrongOpenBuzzer(p) {
+            teams = p.teams;
+            const deltaMap = {};
+            deltaMap[p.teamIdx] = p.delta;
+            renderScoreboard(true, deltaMap);
+        }
+
+        function handleR2Buzzer(p) {
+            // Could show buzz animation on display
+        }
+
+        function handleR2Result(p) {
+            teams = p.teams;
+            if (p.board) renderR2Grid(p.board);
+            const deltaMap = {};
+            deltaMap[p.teamIdx] = p.delta;
+            renderScoreboard(true, deltaMap);
+        }
+
+        // ===== ROUND 3 SPECIFIC =====
+        function handleR3BetPhase(p) {
+            teams = p.teams;
+            showView('question');
+            document.getElementById('dQText').textContent = `Category: ${p.category}`;
+            document.getElementById('dQCounter').textContent = `Question ${p.qNum} / ${p.total}`;
+            document.getElementById('dOptionsGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:20px;padding:30px;">Teams are placing their bets…</div>`;
+            document.getElementById('dAnswerReveal').classList.add('hidden');
+            document.getElementById('dChallengeBanner').classList.add('hidden');
+            document.getElementById('dTeamResponses').classList.add('hidden');
+            document.getElementById('dBuzzerTeams').classList.add('hidden');
+            document.getElementById('dTimer').textContent = '';
+
+            // Show bet cards
+            showR3Bets([0, 0, 0, 0], true);
+            renderScoreboard();
+        }
+
+        function showR3Bets(bets, hideBets) {
+            const tClasses = ['t1', 't2', 't3', 't4'];
+            const el = document.getElementById('dBetTeams');
+            el.classList.remove('hidden');
+            el.innerHTML = teams.map((t, i) => `<div class="d-bet-team" style="background:var(--team${i + 1}-bg);border-radius:10px;">
+    <div style="font-weight:700">${t.name}</div>
+    <div class="bet-label">Wager</div>
+    <div class="bet-amount">${hideBets ? '?' : bets[i]}</div>
+  </div>`).join('');
+        }
+
+        function handleR3TeamAnswering(p) {
+            const banner = document.getElementById('dChallengeBanner');
+            banner.classList.remove('hidden');
+            banner.textContent = `${p.teamName} is answering…`;
+            banner.style.borderColor = 'var(--accent)';
+            banner.style.color = 'var(--accent)';
+        }
+
+        function handleR3Result(p) {
+            teams = p.teams;
+            const deltaMap = {};
+            deltaMap[p.teamIdx] = p.delta;
+            renderScoreboard(true, deltaMap);
+
+            const banner = document.getElementById('dChallengeBanner');
+            if (p.correct) {
+                banner.textContent = `${teams[p.teamIdx].name} — Correct! +${p.delta}`;
+                banner.style.borderColor = 'var(--success)';
+                banner.style.color = 'var(--success)';
+            } else {
+                banner.textContent = `${teams[p.teamIdx].name} — Wrong! ${p.delta}  |  Challenge window open!`;
+                banner.style.borderColor = 'var(--danger)';
+                banner.style.color = 'var(--danger)';
+            }
+            banner.classList.remove('hidden');
+        }
+
+        function handleR3Challenger(p) {
+            const banner = document.getElementById('dChallengeBanner');
+            banner.textContent = `⚡ ${p.teamName} challenges!`;
+            banner.style.borderColor = 'var(--warning)';
+            banner.style.color = 'var(--warning)';
+        }
+
+        function handleR3ChallengeResult(p) {
+            teams = p.teams;
+            const deltaMap = {};
+            deltaMap[p.challengerIdx] = p.delta;
+            renderScoreboard(true, deltaMap);
+
+            const banner = document.getElementById('dChallengeBanner');
+            if (p.correct) {
+                banner.textContent = `${teams[p.challengerIdx].name} challenge successful! +${p.delta}`;
+                banner.style.borderColor = 'var(--success)';
+                banner.style.color = 'var(--success)';
+            } else {
+                banner.textContent = `${teams[p.challengerIdx].name} challenge failed! ${p.delta}`;
+                banner.style.borderColor = 'var(--danger)';
+                banner.style.color = 'var(--danger)';
+            }
+        }
+
+        // ===== ROUND 4 SPECIFIC =====
+        function showR4BuzzerIndicators() {
+            const tClasses = ['t1', 't2', 't3', 't4'];
+            const el = document.getElementById('dBuzzerTeams');
+            el.classList.remove('hidden');
+            el.innerHTML = teams.map((t, i) => `<div class="d-buzzer-team ${tClasses[i]}" id="dbuzz${i}">
+    <div class="team-name">${t.name}</div>
+    <div class="buzz-status">Ready</div>
+  </div>`).join('');
+        }
+
+        function handleR4ShowOptions(p) {
+            const labels = ['A', 'B', 'C', 'D'];
+            const optGrid = document.getElementById('dOptionsGrid');
+            optGrid.innerHTML = p.options.map((o, i) =>
+                `<div class="d-option" id="dopt${i}"><span class="opt-label">${labels[i]}</span><span>${o}</span></div>`
+            ).join('');
+        }
+
+        function handleR4Buzz(p) {
+            const tClasses = ['t1', 't2', 't3', 't4'];
+            // Highlight buzzed team
+            document.querySelectorAll('.d-buzzer-team').forEach(el => {
+                el.style.opacity = '0.3';
+                el.classList.remove('buzzed');
+            });
+            const buzzEl = document.getElementById('dbuzz' + p.teamIdx);
+            if (buzzEl) {
+                buzzEl.style.opacity = '1';
+                buzzEl.classList.add('buzzed');
+                buzzEl.querySelector('.buzz-status').textContent = p.buzzedEarly ? '⚡ BUZZED EARLY!' : '🔔 BUZZED!';
+            }
+        }
+
+        function handleR4Result(p) {
+            teams = p.teams;
+            const deltaMap = {};
+            deltaMap[p.teamIdx] = p.delta;
+            renderScoreboard(true, deltaMap);
+        }
+
+        // ===== TIEBREAKER =====
+        function handleTiebreaker(p) {
+            teams = p.teams;
+            showView('question');
+            document.getElementById('dRoundBadge').textContent = '⚡ Tiebreaker';
+            const q = p.question;
+            document.getElementById('dQText').textContent = q.text;
+            document.getElementById('dQCounter').textContent = 'Tiebreaker Question';
+            const labels = ['A', 'B', 'C', 'D'];
+            document.getElementById('dOptionsGrid').innerHTML = q.options.map((o, i) =>
+                `<div class="d-option" id="dopt${i}"><span class="opt-label">${labels[i]}</span><span>${o}</span></div>`
+            ).join('');
+            document.getElementById('dAnswerReveal').classList.add('hidden');
+            document.getElementById('dChallengeBanner').classList.add('hidden');
+            document.getElementById('dBetTeams').classList.add('hidden');
+            document.getElementById('dTeamResponses').classList.add('hidden');
+            showR4BuzzerIndicators();
+            renderScoreboard();
+        }
+
+        // ============================================================
+        // FULLSCREEN TOGGLE
+        // ============================================================
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => { });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        renderScoreboard();
+    </script>
+</body>
+
+</html>
