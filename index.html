@@ -1702,21 +1702,29 @@
 
         function generateBuzzerLinks() {
             const host = window.location.hostname || 'localhost';
-            const port = 3000;
-            const baseUrl = `http://${host}:${port}/buzzer.html`;
+            const isHttps = window.location.protocol === 'https:';
+            const protocol = isHttps ? 'https:' : 'http:';
+            // For deployed sites, don't add port. For local, use current port or 3000
+            let baseUrl;
+            if (isHttps) {
+                baseUrl = `${protocol}//${host}/buzzer.html`;
+            } else {
+                const port = window.location.port || '3000';
+                baseUrl = `${protocol}//${host}:${port}/buzzer.html`;
+            }
             const tColors = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b'];
             const tBgs = ['rgba(239,68,68,0.1)', 'rgba(59,130,246,0.1)', 'rgba(34,197,94,0.1)', 'rgba(245,158,11,0.1)'];
 
             const grid = document.getElementById('buzzerLinksGrid');
             grid.innerHTML = STATE.teams.map((t, i) => {
-                const teamUrl = `${baseUrl}?team=${i + 1}&server=${host}:${port}`;
+                const teamUrl = `${baseUrl}?team=${i + 1}`;
                 return `<div style="background:${tBgs[i]};border:1px solid ${tColors[i]}30;border-radius:10px;padding:12px;">
                     <div style="font-weight:700;color:${tColors[i]};margin-bottom:4px;">${t.name}</div>
                     <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;" id="buzzerLinkStatus${i}">⏳ Waiting</div>
-                    <input type="text" value="${teamUrl}" readonly onclick="this.select();document.execCommand('copy');" 
-                        style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.3);color:#fff;font-size:11px;cursor:pointer;" 
+                    <input type="text" value="${teamUrl}" readonly onclick="this.select();document.execCommand('copy');"
+                        style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.3);color:#fff;font-size:11px;cursor:pointer;"
                         title="Click to copy">
-                    <button onclick="copyBuzzerLink(this, '${teamUrl}')" 
+                    <button onclick="copyBuzzerLink(this, '${teamUrl}')"
                         style="margin-top:6px;width:100%;padding:6px;border:none;border-radius:6px;background:${tColors[i]};color:#fff;font-size:12px;font-weight:600;cursor:pointer;">📋 Copy Link</button>
                 </div>`;
             }).join('');
