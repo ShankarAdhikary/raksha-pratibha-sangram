@@ -471,12 +471,22 @@
         function getServerUrl() {
             const addr = document.getElementById('serverAddr').value.trim();
             if (!addr) {
-                // Default: same host as the page
+                // Auto-detect: use same host as the page
                 const host = window.location.hostname || 'localhost';
-                return `ws://${host}:3000`;
+                const isHttps = window.location.protocol === 'https:';
+                const wsProtocol = isHttps ? 'wss:' : 'ws:';
+                // For deployed sites (HTTPS), don't add port. For local, use 3000
+                if (isHttps) {
+                    return `${wsProtocol}//${host}`;
+                } else {
+                    const port = window.location.port || '3000';
+                    return `${wsProtocol}//${host}:${port}`;
+                }
             }
             if (addr.startsWith('ws://') || addr.startsWith('wss://')) return addr;
-            return `ws://${addr}`;
+            // Auto-detect protocol based on current page
+            const isHttps = window.location.protocol === 'https:';
+            return `${isHttps ? 'wss' : 'ws'}://${addr}`;
         }
 
         function joinTeam(idx) {
