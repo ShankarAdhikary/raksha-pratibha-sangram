@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Buzzer — Raksha Pratibha Sangram</title>
+    <title>Buzzer - Raksha Pratibha Sangram</title>
     <style>
         * {
             margin: 0;
@@ -522,7 +522,7 @@
             };
 
             ws.onclose = () => {
-                updateStatus('disconnected', 'Disconnected — reconnecting…');
+                updateStatus('disconnected', 'Disconnected - reconnecting…');
                 reconnectTimer = setTimeout(() => connectWS(), 3000);
             };
 
@@ -618,7 +618,7 @@
                 timestamp: Date.now()
             }));
 
-            // Optimistic UI — will be confirmed/rejected by server
+            // Optimistic UI - will be confirmed/rejected by server
             document.getElementById('buzzerBtn').classList.add('buzzed');
         }
 
