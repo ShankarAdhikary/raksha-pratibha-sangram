@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raksha Pratibha Sangram — Display</title>
+    <title>Raksha Pratibha Sangram - Display</title>
     <link rel="stylesheet" href="css/display.css">
     <!-- Confetti & QR Code libraries -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -204,7 +204,7 @@
 
         function handleStartRound(p) {
             currentRound = p.round;
-            const titles = { 1: 'Round 1 — Global Horizon', 2: 'Round 2 — The Grid Matrix', 3: 'Round 3 — Risk Corridor', 4: 'Round 4 — Blitzkrieg' };
+            const titles = { 1: 'Round 1 - Global Horizon', 2: 'Round 2 - The Grid Matrix', 3: 'Round 3 - Risk Corridor', 4: 'Round 4 - Blitzkrieg' };
             document.getElementById('dRoundBadge').textContent = titles[p.round] || p.title;
             if (p.round === 2) showView('grid');
             else showView('question');
@@ -346,7 +346,7 @@
                 <div style="font-size:24px;color:var(--text-muted);margin-bottom:8px;">Round ${p.round} Complete</div>
                 <div style="font-size:42px;font-weight:800;margin-bottom:30px;">${roundNames[p.round] || ''}</div>
                 <div style="font-size:20px;color:var(--text-muted);margin-bottom:20px;">Current Standings</div>
-                ${sorted.map((t, i) => `<div style="font-size:${i === 0 ? 28 : 20}px;margin:8px 0;color:${tColors[t.id]};font-weight:${i === 0 ? 800 : 400}">${i + 1}. ${t.name} — ${t.score} pts</div>`).join('')}
+                ${sorted.map((t, i) => `<div style="font-size:${i === 0 ? 28 : 20}px;margin:8px 0;color:${tColors[t.id]};font-weight:${i === 0 ? 800 : 400}">${i + 1}. ${t.name} - ${t.score} pts</div>`).join('')}
             `;
             showView('roundComplete');
         }
@@ -414,7 +414,7 @@
                     const cellIdx = ci * 4 + row;
                     const cell = board[cellIdx];
                     const cls = cell.status === 'used' ? 'used' : (cell.status === 'active' ? 'active' : '');
-                    html += `<div class="d-grid-cell ${cls}">${cell.status === 'used' ? '—' : cell.points}</div>`;
+                    html += `<div class="d-grid-cell ${cls}">${cell.status === 'used' ? '-' : cell.points}</div>`;
                 });
             }
             grid.innerHTML = html;
@@ -489,11 +489,11 @@
 
             const banner = document.getElementById('dChallengeBanner');
             if (p.correct) {
-                banner.textContent = `${teams[p.teamIdx].name} — Correct! +${p.delta}`;
+                banner.textContent = `${teams[p.teamIdx].name} - Correct! +${p.delta}`;
                 banner.style.borderColor = 'var(--success)';
                 banner.style.color = 'var(--success)';
             } else {
-                banner.textContent = `${teams[p.teamIdx].name} — Wrong! ${p.delta}  |  Challenge window open!`;
+                banner.textContent = `${teams[p.teamIdx].name} - Wrong! ${p.delta}  |  Challenge window open!`;
                 banner.style.borderColor = 'var(--danger)';
                 banner.style.color = 'var(--danger)';
             }
