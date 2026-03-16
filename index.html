@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raksha Pratibha Sangram — Host Panel</title>
+    <title>Raksha Pratibha Sangram - Host Panel</title>
     <link rel="stylesheet" href="css/host.css">
 </head>
 
@@ -97,7 +97,7 @@
                 <div class="card">
                     <div class="flex-between">
                         <div>
-                            <h2>Round 1 — Global Horizon</h2>
+                            <h2>Round 1 - Global Horizon</h2>
                             <p class="card-desc">Direct Questioning • Teams answer one by one • +40 correct, 0
                                 wrong • 60s timer • No passing</p>
                         </div>
@@ -148,7 +148,7 @@
                 <div class="card">
                     <div class="flex-between">
                         <div>
-                            <h2>Round 2 — The Grid Matrix</h2>
+                            <h2>Round 2 - The Grid Matrix</h2>
                             <p class="card-desc">Jeopardy-style board • 4 categories × 4 point values • Pass → deduct,
                                 buzzer opens</p>
                         </div>
@@ -170,7 +170,7 @@
 
                     <div class="card" id="r2QuestionCard" style="display:none">
                         <div class="flex-between mb-16">
-                            <h3 id="r2QMeta">History — 20 pts</h3>
+                            <h3 id="r2QMeta">History - 20 pts</h3>
                             <div class="timer-display" id="r2Timer">60</div>
                         </div>
                         <div class="question-box">
@@ -193,7 +193,7 @@
                         </div>
                         <div id="r2BuzzerArea" style="display:none" class="mt-16">
                             <hr>
-                            <h3 class="mb-16">Buzzer — Other Teams</h3>
+                            <h3 class="mb-16">Buzzer - Other Teams</h3>
                             <div class="r4-buzzer-grid" id="r2BuzzerBtns"></div>
                             <div class="mt-8 btn-group" id="r2BuzzerActions" style="display:none">
                                 <button class="btn btn-success btn-sm" onclick="r2BuzzerCorrect()">&#10004; Buzzer
@@ -202,7 +202,7 @@
                                     Wrong</button>
                             </div>
                             <div class="mt-8">
-                                <button class="btn btn-outline btn-sm" onclick="r2BuzzerSkip()">&#9940; No Buzz —
+                                <button class="btn btn-outline btn-sm" onclick="r2BuzzerSkip()">&#9940; No Buzz -
                                     Skip</button>
                             </div>
                         </div>
@@ -215,7 +215,7 @@
                 <div class="card">
                     <div class="flex-between">
                         <div>
-                            <h2>Round 3 — Risk Corridor</h2>
+                            <h2>Round 3 - Risk Corridor</h2>
                             <p class="card-desc">Wagering round • Teams bet before seeing question • Challenge mechanic
                                 • 2× reward</p>
                         </div>
@@ -280,7 +280,7 @@
                 <div class="card">
                     <div class="flex-between">
                         <div>
-                            <h2>Round 4 — Blitzkrieg</h2>
+                            <h2>Round 4 - Blitzkrieg</h2>
                             <p class="card-desc">Rapid-fire buzzer • 30 MCQs • +20 correct, −10 wrong • Buzz before
                                 options = no options shown</p>
                         </div>
@@ -346,7 +346,7 @@
                             <div id="r4AnswerArea" style="display:none" class="mt-16">
                                 <div class="flex-between">
                                     <span id="r4BuzzedTeam" style="font-weight:700"></span>
-                                    <span id="r4BuzzedEarly" class="status-badge" style="display:none">BUZZED EARLY — No
+                                    <span id="r4BuzzedEarly" class="status-badge" style="display:none">BUZZED EARLY - No
                                         Options</span>
                                 </div>
                                 <div class="btn-group mt-8">
@@ -427,10 +427,10 @@
                         <label>Filter by Round</label>
                         <select id="qFilterRound" onchange="renderQuestionList()">
                             <option value="all">All Rounds</option>
-                            <option value="round1">Round 1 — Global Horizon</option>
-                            <option value="round2">Round 2 — Grid Matrix</option>
-                            <option value="round3">Round 3 — Risk Corridor</option>
-                            <option value="round4">Round 4 — Blitzkrieg</option>
+                            <option value="round1">Round 1 - Global Horizon</option>
+                            <option value="round2">Round 2 - Grid Matrix</option>
+                            <option value="round3">Round 3 - Risk Corridor</option>
+                            <option value="round4">Round 4 - Blitzkrieg</option>
                         </select>
                     </div>
                     <div class="q-manager-list" id="qManagerList"></div>
@@ -447,10 +447,10 @@
             <div class="form-group">
                 <label>Round</label>
                 <select id="aqRound" onchange="onAqRoundChange()">
-                    <option value="round1">Round 1 — Global Horizon</option>
-                    <option value="round2">Round 2 — Grid Matrix</option>
-                    <option value="round3">Round 3 — Risk Corridor</option>
-                    <option value="round4">Round 4 — Blitzkrieg</option>
+                    <option value="round1">Round 1 - Global Horizon</option>
+                    <option value="round2">Round 2 - Grid Matrix</option>
+                    <option value="round3">Round 3 - Risk Corridor</option>
+                    <option value="round4">Round 4 - Blitzkrieg</option>
                 </select>
             </div>
             <div class="form-group" id="aqCatGroup" style="display:none">
@@ -512,7 +512,7 @@
     <script src="js/questions.js"></script>
     <script>
         // ============================================================
-        // SOUND EFFECTS (Web Audio API — no files needed)
+        // SOUND EFFECTS (Web Audio API - no files needed)
         // ============================================================
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
@@ -710,7 +710,7 @@
             updateSidebarScores();
             updateScoreTable();
             sendToDisplay('UPDATE_SCORES', { teams: STATE.teams });
-            logEvent('UNDO', `Undid "${last.description}" — ${STATE.teams[last.teamIdx].name} score restored`);
+            logEvent('UNDO', `Undid "${last.description}" - ${STATE.teams[last.teamIdx].name} score restored`);
             // Update button
             const btn = document.getElementById('undoBtn');
             if (STATE.undoStack.length === 0) {
@@ -763,7 +763,7 @@
         }
 
         // ============================================================
-        // ROUND 1 — GLOBAL HORIZON
+        // ROUND 1 - GLOBAL HORIZON
         // ============================================================
         function r1StartRound() {
             STATE.currentRound = 1;
@@ -949,7 +949,7 @@
         }
 
         // ============================================================
-        // ROUND 2 — THE GRID MATRIX
+        // ROUND 2 - THE GRID MATRIX
         // ============================================================
         function r2StartRound() {
             STATE.currentRound = 2;
@@ -1045,7 +1045,7 @@
             r2RenderGrid();
 
             const q = cell.question;
-            document.getElementById('r2QMeta').textContent = `${cell.categoryLabel} — ${cell.points} pts`;
+            document.getElementById('r2QMeta').textContent = `${cell.categoryLabel} - ${cell.points} pts`;
             document.getElementById('r2QText').textContent = q.text;
             const labels = ['A', 'B', 'C', 'D'];
             document.getElementById('r2QOptions').innerHTML = q.options.map((o, i) => `<div class="q-option" id="r2opt${i}" onclick="r2SelectOption(${i})">${labels[i]}. ${o}</div>`).join('');
@@ -1060,7 +1060,7 @@
             STATE.r2.selectedOption = -1;
             STATE.r2.helpUsed = false;
 
-            sendToDisplay('SHOW_QUESTION', { round: 2, question: q, meta: `${cell.categoryLabel} — ${cell.points} pts`, board: STATE.r2.board });
+            sendToDisplay('SHOW_QUESTION', { round: 2, question: q, meta: `${cell.categoryLabel} - ${cell.points} pts`, board: STATE.r2.board });
 
             // Auto-start 60s timer for round 2 question
             r2ClearTimer();
@@ -1137,7 +1137,7 @@
             // Enable remote buzzers for other teams (if needed)
             STATE.r2.buzzerTeam = -1;
             STATE.r2.wrongOpened = true;
-            notifyBuzzerServerEnable('Challenge — press to answer!', `${cell.categoryLabel} ${cell.points}`, 'Round 2 — Grid Matrix');
+            notifyBuzzerServerEnable('Challenge - press to answer!', `${cell.categoryLabel} ${cell.points}`, 'Round 2 - Grid Matrix');
         }
 
         function r2TakeHelp() {
@@ -1210,7 +1210,7 @@
             if (STATE.r2.activeCell === null || STATE.r2.resolved) return;
             const cell = STATE.r2.board[STATE.r2.activeCell];
             cell.status = 'used';
-            logEvent('R2', `${cell.categoryLabel} ${cell.points} — no buzzer, skipped`);
+            logEvent('R2', `${cell.categoryLabel} ${cell.points} - no buzzer, skipped`);
             notifyBuzzerServerQuestionOver();
             sendToDisplay('R2_RESULT', { correct: false, teamIdx: -1, delta: 0, teams: STATE.teams, board: STATE.r2.board });
             STATE.r2.resolved = true;
@@ -1262,7 +1262,7 @@
         }
 
         // ============================================================
-        // ROUND 3 — RISK CORRIDOR
+        // ROUND 3 - RISK CORRIDOR
         // ============================================================
         function r3StartRound() {
             STATE.currentRound = 3;
@@ -1445,7 +1445,7 @@
         }
 
         // ============================================================
-        // ROUND 4 — BLITZKRIEG
+        // ROUND 4 - BLITZKRIEG
         // ============================================================
         function r4StartRound() {
             STATE.currentRound = 4;
@@ -1522,7 +1522,7 @@
             sendToDisplay('SHOW_QUESTION', { round: 4, question: { text: q.text, options: q.options }, qNum: STATE.r4.qIndex + 1, total: qs.length, optionsHidden: true });
 
             // Enable remote buzzers
-            notifyBuzzerServerEnable(q.text, `Q ${STATE.r4.qIndex + 1} / ${qs.length}`, 'Round 4 — Blitzkrieg');
+            notifyBuzzerServerEnable(q.text, `Q ${STATE.r4.qIndex + 1} / ${qs.length}`, 'Round 4 - Blitzkrieg');
         }
 
         function r4ShowOptions() {
